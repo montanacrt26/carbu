@@ -1,0 +1,34 @@
+# /api/.htaccess
+# Stop any parent rewrite rules (Laravel, Node proxy, etc.) from intercepting /api/* requests.
+# This ensures Apache serves the .php files directly via the PHP handler.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine Off
+</IfModule>
+
+# Make sure PHP files in this directory are handled by PHP, not by any other handler.
+<FilesMatch "\.php$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
+# Default index
+DirectoryIndex check.php ping.php index.php
+
+# CORS / cache headers (optional but useful for JSON APIs)
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+</IfModule>
+
+# Allow direct access to .php files
+<Files "*.php">
+    Require all granted
+</Files>
+
+# Block direct access to sensitive files
+<FilesMatch "^(dbconfig\.php|setup\.sql)$">
+    # These should not be requested directly via the browser in normal use;
+    # however they MUST be readable by other PHP scripts via include/require.
+    # Apache <Files> only blocks HTTP requests, not internal includes — so this is safe.
+    Require all denied
+</FilesMatch>
