@@ -1496,10 +1496,24 @@
       border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
-    .badge.autoroute {
+.badge.autoroute {
       background: var(--info-bg);
       color: var(--info);
       border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge.best-price {
+      background: var(--low);
+      color: #fff;
+      border: 1px solid var(--low);
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+      animation: bestPricePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes bestPricePulse {
+      0%, 100% { box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4); }
+      50% { box-shadow: 0 2px 12px rgba(16, 185, 129, 0.7); }
     }
 
     /* ── Analysis section (Top5 + Distribution) ── */
@@ -4243,6 +4257,7 @@ out tags center;`;
         ? `<span class="badge rupture">Rupture</span>`
         : `<span class="badge dispo">Dispo</span>`;
       const highway = s.pop === 'A' ? `<span class="badge autoroute">Autoroute</span>` : '';
+      const bestBadge = isBest ? `<span class="badge best-price">Meilleur prix</span>` : '';
       const services = parseServices(s.services);
       const svcShort = services.slice(0, 2).map(escape).join(' · ');
 
@@ -4323,7 +4338,7 @@ out tags center;`;
     </div>
     <div class="station-addr">${escape(s.adresse || '')}${s.adresse ? ' — ' : ''}${escape(formatCity(s))}</div>
     <div class="station-meta">
-      ${status}${highway}${dist}
+      ${status}${highway}${bestBadge}${dist}
       ${svcShort ? `<span class="station-meta-icon">⊕ ${svcShort}</span>` : ''}
       ${editFavBtn}
     </div>
