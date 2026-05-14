@@ -4225,8 +4225,10 @@ out tags center;`;
         bindFavSearchInput();
         return;
       }
-      const prices = displayRows.map(getPrice).filter(p => p !== null);
-      const mn = Math.min(...prices), mx = Math.max(...prices);
+// Use all rows for min/max calculation so savings are relative to all visible results
+      const allPrices = rows.map(getPrice).filter(p => p !== null);
+      const mn = Math.min(...allPrices), mx = Math.max(...allPrices);
+      console.log('[v0] renderList: rows=', rows.length, 'displayRows=', displayRows.length, 'mn=', mn, 'mx=', mx);
       wrap.innerHTML = searchBarHTML + displayRows.map(s => buildStationCard(s, mn, mx)).join('');
       bindFavSearchInput();
       if (showingFavorites) attachFavoritesDragAndDrop();
