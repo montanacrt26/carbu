@@ -4149,10 +4149,7 @@ filteredResults = sortRows(applyFilters());
       const globalMn = pricesMnMx.length ? Math.min(...pricesMnMx) : null;
       const globalMx = pricesMnMx.length ? Math.max(...pricesMnMx) : null;
       
-      console.log('[v0] render: allResults=', allResults.length,
-        'filtered=', filteredResults.length,
-        'fuel=', currentFuel,
-        'globalMn=', globalMn, 'globalMx=', globalMx);
+      
       renderStats(filteredResults);
       renderList(filteredResults, globalMn, globalMx);
       renderMap(filteredResults);
@@ -4240,7 +4237,6 @@ filteredResults = sortRows(applyFilters());
       }
 // Use the pre-calculated global min/max from render()
       const mn = globalMn, mx = globalMx;
-      console.log('[v0] renderList: mn=', mn, 'mx=', mx);
       wrap.innerHTML = searchBarHTML + displayRows.map(s => buildStationCard(s, mn, mx)).join('');
       bindFavSearchInput();
       if (showingFavorites) attachFavoritesDragAndDrop();
@@ -4283,16 +4279,8 @@ const isBest = p !== null && p === mn;
         : `<span class="badge dispo">Dispo</span>`;
       const highway = s.pop === 'A' ? `<span class="badge autoroute">Autoroute</span>` : '';
       
-      // Badge showing savings vs most expensive station (only for cheapest stations)
-      let bestBadge = '';
-      if (isBest && p !== null && mx !== null && mx > p) {
-        const tank = currentCarProfile?.tank_capacity || 50;
-        const savePerLiter = mx - p;
-        const savePerTank = savePerLiter * tank;
-        bestBadge = `<span class="badge best-price" title="Économie sur un plein de ${tank} L vs station la plus chère">−${savePerTank.toFixed(2)} €/plein</span>`;
-      } else if (isBest) {
-        bestBadge = `<span class="badge best-price">Meilleur prix</span>`;
-      }
+      // Badge "Meilleur prix" for cheapest stations
+      const bestBadge = isBest ? `<span class="badge best-price">Meilleur prix</span>` : '';
       const services = parseServices(s.services);
       const svcShort = services.slice(0, 2).map(escape).join(' · ');
 
@@ -4311,8 +4299,7 @@ const isBest = p !== null && p === mn;
   </button>`;
 
 // ─── Savings calculator (vs most expensive in list)
-let savingsPill = '';
-      console.log('[v0] savingsPill debug:', { isBest, p, mx, condition: isBest && p !== null && mx !== null && mx > p });
+      let savingsPill = '';
       if (isBest && p !== null && mx !== null && mx > p) {
         const tank = currentCarProfile?.tank_capacity || 50;
         const savePerLiter = mx - p;
@@ -4733,7 +4720,7 @@ const extras = (savingsPill || costPill)
       if (e.key === 'Escape') { closeStationModal(); closeAuthModal(); closeUserMenu(); }
     });
 
-    // ────────────────────────────────────────────────────���─────────────────��────
+    // ──────────────────────────────────────────���─────────���─────────────────��────
     // Toast notifications (showAlert)
     // ───────────────────────────────────────────────────────────────────────────
     const TOAST_ICONS = {
