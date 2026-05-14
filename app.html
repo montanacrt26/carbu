@@ -4306,9 +4306,7 @@ let savingsPill = '';
         const savePerLiter = mx - p;
         const savePerTank = savePerLiter * tank;
         if (savePerTank >= 0.01) {
-          savingsPill = `<span class="extra-pill savings" title="Économie sur un plein de ${tank} L vs station la plus chère">
-            −${savePerTank.toFixed(2)} €/plein
-          </span>`;
+          savingsPill = `<span class="extra-pill savings" title="Économie sur un plein de ${tank} L vs station la plus chère">-${savePerTank.toFixed(2)} €/plein</span>`;
         }
       }
 
@@ -4723,7 +4721,7 @@ const extras = (savingsPill || costPill)
       if (e.key === 'Escape') { closeStationModal(); closeAuthModal(); closeUserMenu(); }
     });
 
-    // ───────────────────────────────────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────────────��────
     // Toast notifications (showAlert)
     // ───────────────────────────────────────────────────────────────────────────
     const TOAST_ICONS = {
