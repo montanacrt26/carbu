@@ -2731,6 +2731,7 @@
       gap: 0.75rem;
       margin-bottom: 1rem;
     }
+
     .dash-tile {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -2740,23 +2741,30 @@
       flex-direction: column;
       gap: 0.25rem;
     }
+
     .dash-tile .dt-label {
       color: var(--muted);
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
+
     .dash-tile .dt-value {
       font-size: 1.5rem;
       font-weight: 700;
       color: var(--text);
       letter-spacing: -0.01em;
     }
+
     .dash-tile .dt-sub {
       color: var(--muted);
       font-size: 0.75rem;
     }
-    .dash-section { margin-top: 1.25rem; }
+
+    .dash-section {
+      margin-top: 1.25rem;
+    }
+
     .dash-section-title {
       font-size: 0.85rem;
       font-weight: 600;
@@ -2766,11 +2774,13 @@
       align-items: center;
       gap: 0.4rem;
     }
+
     .dash-list {
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
     }
+
     .dash-list-item {
       display: flex;
       justify-content: space-between;
@@ -2781,6 +2791,7 @@
       border-radius: 8px;
       font-size: 0.85rem;
     }
+
     .dash-list-item .dli-meta {
       color: var(--muted);
       font-size: 0.75rem;
@@ -2792,17 +2803,23 @@
       grid-template-columns: 1fr 1fr;
       gap: 0.75rem;
     }
+
     .form-row {
       display: flex;
       flex-direction: column;
       gap: 0.3rem;
     }
-    .form-row.full { grid-column: 1 / -1; }
+
+    .form-row.full {
+      grid-column: 1 / -1;
+    }
+
     .form-row label {
       font-size: 0.75rem;
       color: var(--muted);
       font-weight: 500;
     }
+
     .form-row input,
     .form-row select,
     .form-row textarea {
@@ -2814,6 +2831,7 @@
       font: inherit;
       width: 100%;
     }
+
     .form-row input:focus,
     .form-row select:focus,
     .form-row textarea:focus {
@@ -2821,7 +2839,12 @@
       border-color: var(--primary);
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
     }
-    .form-row textarea { resize: vertical; min-height: 70px; }
+
+    .form-row textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
     .form-hint {
       font-size: 0.7rem;
       color: var(--muted);
@@ -2836,28 +2859,36 @@
       margin-top: 1rem;
       display: none;
     }
-    .trip-result.show { display: block; }
+
+    .trip-result.show {
+      display: block;
+    }
+
     .trip-result-big {
       font-size: 2rem;
       font-weight: 700;
       color: var(--primary);
     }
+
     .trip-result-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 0.75rem;
       margin-top: 0.75rem;
     }
-    .trip-result-grid > div {
+
+    .trip-result-grid>div {
       display: flex;
       flex-direction: column;
       gap: 0.2rem;
     }
+
     .trip-result-grid .trg-label {
       font-size: 0.7rem;
       color: var(--muted);
       text-transform: uppercase;
     }
+
     .trip-result-grid .trg-value {
       font-size: 1rem;
       font-weight: 600;
@@ -2873,6 +2904,7 @@
       padding-top: 0.6rem;
       border-top: 1px dashed var(--border);
     }
+
     .extra-pill {
       display: inline-flex;
       align-items: center;
@@ -2885,11 +2917,13 @@
       border: 1px solid var(--border);
       color: var(--text);
     }
+
     .extra-pill.full-tank {
       background: color-mix(in srgb, #f59e0b 12%, transparent);
       border-color: color-mix(in srgb, #f59e0b 35%, transparent);
       color: #f59e0b;
     }
+
     .extra-pill.cost {
       background: color-mix(in srgb, var(--primary) 10%, transparent);
       border-color: color-mix(in srgb, var(--primary) 30%, transparent);
@@ -2909,6 +2943,7 @@
       font-size: 0.7rem;
       font-weight: 600;
     }
+
     .station-notes {
       margin-top: 0.5rem;
       padding: 0.5rem 0.65rem;
@@ -2919,6 +2954,7 @@
       color: var(--muted);
       font-style: italic;
     }
+
     .fav-edit-btn {
       background: transparent;
       border: 1px solid var(--border);
@@ -2932,14 +2968,29 @@
       gap: 0.25rem;
       transition: all 0.15s;
     }
+
     .fav-edit-btn:hover {
       color: var(--primary);
       border-color: var(--primary);
     }
-    .station-card.draggable { cursor: grab; }
-    .station-card.draggable:active { cursor: grabbing; }
-    .station-card.dragging { opacity: 0.5; transform: scale(0.98); }
-    .station-card.drag-over { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent); }
+
+    .station-card.draggable {
+      cursor: grab;
+    }
+
+    .station-card.draggable:active {
+      cursor: grabbing;
+    }
+
+    .station-card.dragging {
+      opacity: 0.5;
+      transform: scale(0.98);
+    }
+
+    .station-card.drag-over {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent);
+    }
 
     /* Favorites search bar */
     .fav-search-bar {
@@ -2952,6 +3003,7 @@
       border-radius: 10px;
       margin-bottom: 0.75rem;
     }
+
     .fav-search-bar input {
       flex: 1;
       background: transparent;
@@ -2960,7 +3012,11 @@
       font: inherit;
       outline: none;
     }
-    .fav-search-bar svg { color: var(--muted); flex-shrink: 0; }
+
+    .fav-search-bar svg {
+      color: var(--muted);
+      flex-shrink: 0;
+    }
 
     /* Auth error reuse for form errors */
     .auth-error {
@@ -2969,11 +3025,19 @@
       font-size: 0.78rem;
       padding: 0.4rem 0;
     }
-    .auth-error.show { display: block; }
+
+    .auth-error.show {
+      display: block;
+    }
 
     @media (max-width: 600px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .trip-result-grid { grid-template-columns: 1fr; }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .trip-result-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -2987,7 +3051,6 @@
       <div class="brand">
         <span class="brand-logo">C</span>
         <span>CarbuFrance</span>
-        <span class="badge-flash">Données officielles</span>
       </div>
       <div class="topbar-right">
         <!-- Auth area: filled by JS depending on session state -->
@@ -3471,7 +3534,7 @@ out tags center;`;
           if (!r.ok) continue;
           const data = await r.json();
           let added = 0;
-          
+
           // First pass: match by official ref:FR:prix-carburants tag
           for (const el of data.elements || []) {
             const t = el.tags || {};
@@ -3483,7 +3546,7 @@ out tags center;`;
             stationNames.set(String(ref), { name, brand });
             added++;
           }
-          
+
           // Second pass: geographic matching for stations without ref tag
           // Match OSM stations to government stations by proximity (< 80m)
           const osmStations = (data.elements || []).filter(el => {
@@ -3499,12 +3562,12 @@ out tags center;`;
             const lon = el.lon ?? el.center?.lon;
             return typeof lat === 'number' && typeof lon === 'number';
           });
-          
+
           for (const s of stations) {
             // Skip if already has a name from ref matching
             if (stationNames.has(String(s.id))) continue;
             if (!s.geom || typeof s.geom.lat !== 'number') continue;
-            
+
             // Find closest OSM station within 80 meters
             let closest = null;
             let closestDist = Infinity;
@@ -3517,7 +3580,7 @@ out tags center;`;
                 closest = el;
               }
             }
-            
+
             if (closest) {
               const t = closest.tags || {};
               const name = (t.name || '').trim();
@@ -3526,7 +3589,7 @@ out tags center;`;
               added++;
             }
           }
-          
+
           return added > 0;
         } catch (e) { /* try next */ }
       }
@@ -4953,13 +5016,13 @@ out tags center;`;
               <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
               <circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/>
             </svg>
-            Mon profil voiture
+            Mon véhicule
           </button>
           <button class="user-menu-item" id="myFavoritesBtn" role="menuitem">
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:#f59e0b">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
-            Mes favoris (<span id="favCount">${userFavorites.length}</span>)
+            Mes favoris
           </button>
           <button class="user-menu-item" id="tripCostBtn" role="menuitem">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:#10b981">
