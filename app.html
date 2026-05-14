@@ -3311,6 +3311,8 @@
 
     // ── State ──
     let allResults = [];   // raw API rows
+    let savedAllResults = [];   // backup of allResults before favorites mode
+    let savedSearchCenter = null; // backup of searchCenter before favorites mode
     let filteredResults = [];   // after radius + filters
     let currentSort = 'price';
     let currentFuel = 'Gazole';
@@ -3978,10 +3980,17 @@ out tags center;`;
         const id = m === 'price' ? 'sortPriceBtn' : m === 'distance' ? 'sortDistBtn' : 'sortNameBtn';
         document.getElementById(id).classList.toggle('active', m === mode);
       });
-      // Restore the map visibility (was hidden in favorites view)
+      // Restore the map visibility and original results (was hidden in favorites view)
       if (wasFavorites) {
         const mapCard = document.getElementById('mapCard');
         if (mapCard) mapCard.style.display = '';
+        // Restore original search results
+        if (savedAllResults.length) {
+          allResults = savedAllResults;
+          searchCenter = savedSearchCenter;
+          savedAllResults = [];
+          savedSearchCenter = null;
+        }
       }
       render(false);
     }
@@ -3995,6 +4004,12 @@ out tags center;`;
       if (!userFavorites.length) {
         showAlert('Vous n\'avez pas encore de stations favorites.', 'info');
         return;
+      }
+
+      // Save current results to restore when exiting favorites mode
+      if (allResults.length && !showingFavorites) {
+        savedAllResults = [...allResults];
+        savedSearchCenter = searchCenter;
       }
 
       showingFavorites = true;
