@@ -3383,25 +3383,20 @@
           return { name: pretty, brand: '' };
         }
       }
-      // If no brand found, create a user-friendly name from the address
-      // Prioritize street name extraction over full address display
+      // If no brand found, use the city name as primary identifier
+      // This is cleaner than showing addresses like "Zac De Belle Fontaine"
+      if (s.ville) {
+        return { name: 'Station ' + capitalize(s.ville), brand: '' };
+      }
       if (s.adresse) {
+        // Extract meaningful part from address
         const addr = s.adresse.toUpperCase();
-        // Check for common commercial zones patterns
         const zacMatch = addr.match(/^(ZA[CI]?|ZI|ZONE [A-Z]+|CENTRE COMMERCIAL|CC|CCIAL)\s+(.+)/i);
         if (zacMatch) {
-          // For ZAC/ZI addresses, show "Station [Zone Name]"
           return { name: 'Station ' + capitalize(zacMatch[2]), brand: '' };
         }
-        // For street addresses, extract a shorter name
-        const streetMatch = addr.match(/^(\d+\s*)?(RUE|AVENUE|BOULEVARD|BD|AV|ROUTE|RTE|PLACE|CHEMIN|ALLEE|IMPASSE)\s+(.+)/i);
-        if (streetMatch) {
-          return { name: 'Station ' + capitalize(streetMatch[3]), brand: '' };
-        }
-        // Fallback: use full address but prefix with "Station"
         return { name: 'Station ' + capitalize(s.adresse), brand: '' };
       }
-      if (s.ville) return { name: 'Station de ' + capitalize(s.ville), brand: '' };
       return { name: 'Station', brand: '' };
     }
 
@@ -4315,7 +4310,8 @@ out tags center;`;
       const full = getStationFullName(s);
       const brand = full.brand || getStationBrand(s);
       const p = getPrice(s);
-      const isBest = p !== null && p === mn && mn !== mx;
+      // Always show best price in green (even if only one station)
+      const isBest = p !== null && p === mn;
       const isWorst = p !== null && p === mx && mn !== mx;
       const priceClass = isBest ? 'best' : isWorst ? 'worst' : '';
       const cardClass = isBest ? 'best' : isWorst ? 'worst' : '';
