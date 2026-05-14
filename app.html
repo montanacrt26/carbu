@@ -3374,7 +3374,7 @@
 
     // ── State ──
     let allResults = [];   // raw API rows
-    let savedAllResults = [];   // backup of allResults before favorites mode
+    let savedAllResults = null;   // backup of allResults before favorites mode (null = not saved)
     let savedSearchCenter = null; // backup of searchCenter before favorites mode
     let filteredResults = [];   // after radius + filters
     let currentSort = 'price';
@@ -4042,11 +4042,11 @@ out tags center;`;
       if (wasFavorites) {
         const mapCard = document.getElementById('mapCard');
         if (mapCard) mapCard.style.display = '';
-        // Restore original search results
-        if (savedAllResults.length) {
+        // Restore original search results (savedAllResults is null if never saved)
+        if (savedAllResults !== null) {
           allResults = savedAllResults;
           searchCenter = savedSearchCenter;
-          savedAllResults = [];
+          savedAllResults = null;
           savedSearchCenter = null;
         }
       }
@@ -4065,8 +4065,9 @@ out tags center;`;
       }
 
       // Save current results to restore when exiting favorites mode
-      if (allResults.length && !showingFavorites) {
-        savedAllResults = [...allResults];
+      // Only save if we're not already in favorites mode
+      if (!showingFavorites) {
+        savedAllResults = [...allResults]; // can be empty array
         savedSearchCenter = searchCenter;
       }
 
