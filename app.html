@@ -4297,14 +4297,13 @@ const isBest = p !== null && p === mn;
   </button>`;
 
       // ─── Savings calculator (vs most expensive in list)
-      let savingsPill = '';
-      if (p !== null && mn !== mx && p < mx) {
+let savingsPill = '';
+      if (isBest && p !== null && mx !== null && mx > p) {
         const tank = currentCarProfile?.tank_capacity || 50;
         const savePerLiter = mx - p;
         const savePerTank = savePerLiter * tank;
-        if (savePerTank >= 0.5) {
+        if (savePerTank >= 0.01) {
           savingsPill = `<span class="extra-pill savings" title="Économie sur un plein de ${tank} L vs station la plus chère">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 12 9 23 4 18"/></svg>
             −${savePerTank.toFixed(2)} €/plein
           </span>`;
         }
@@ -4320,8 +4319,8 @@ const isBest = p !== null && p === mn;
         </span>`;
       }
 
-      const extras = (savingsPill || costPill)
-        ? `<div class="station-extras">${savingsPill}${costPill}</div>`
+const extras = (savingsPill || costPill)
+        ? `<div class="station-extras">${costPill}${savingsPill}</div>`
         : '';
 
       // ─── Favorite nickname + edit + notes (favorites view only)
