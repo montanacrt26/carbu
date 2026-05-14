@@ -3323,7 +3323,7 @@
     const API_BASE = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records';
     const GEO_API = 'https://geo.api.gouv.fr/communes';
 
-    // ── State ──
+// ── State ──
     let allResults = [];   // raw API rows
     let filteredResults = [];   // after radius + filters
     let currentSort = 'price';
@@ -3332,6 +3332,8 @@
     let map = null;
     let markersLayer = null;
     let acTimeout;
+    let showingFavorites = false; // true when Favoris view is active
+    let favoritesSearchQuery = ''; // search query within favorites view
 
     // ── Fuel mapping ──
     const FUEL_COLS = {
@@ -3906,9 +3908,7 @@ out tags center;`;
       btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> Rechercher`;
     }
 
-    // ── Sort ──
-    let showingFavorites = false; // true when the Favoris filter is active
-
+// ── Sort ──
     function setSort(mode) {
       // Clicking a sort tab exits favorites mode
       const wasFavorites = showingFavorites;
