@@ -1,0 +1,5709 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarbuFrance — Restez malin, optimisez le plein</title>
+  <meta name="theme-color" content="#f4f5fb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0b1e" media="(prefers-color-scheme: dark)">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --mono: 'DM Mono', ui-monospace, monospace;
+      --sans: 'DM Sans', system-ui, sans-serif;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --radius-lg: 18px;
+
+      /* Constant accent colors (identical in both themes) */
+      --low: #10b981;
+      --mid: #f59e0b;
+      --high: #ef4444;
+      --info: #3b82f6;
+      --primary: #7c3aed;
+      --primary-2: #6d28d9;
+    }
+
+    /* ── Light theme (default) ── */
+    :root,
+    [data-theme="light"] {
+      --bg: #f1f3fa;
+      --bg-2: #ffffff;
+      --surface: #ffffff;
+      --surface-2: #f6f7fc;
+      --surface-3: #ebeef7;
+      --border: rgba(15, 18, 38, 0.09);
+      --border-2: rgba(15, 18, 38, 0.18);
+      --text: #0d1024;
+      --text-2: #2a2e4a;
+      --muted: #5d6182;
+      --muted-2: #9ea2b8;
+
+      --primary-bg: rgba(124, 58, 237, 0.10);
+      --low-bg: rgba(16, 185, 129, 0.13);
+      --mid-bg: rgba(245, 158, 11, 0.16);
+      --high-bg: rgba(239, 68, 68, 0.13);
+      --info-bg: rgba(59, 130, 246, 0.13);
+
+      --shadow-card: 0 1px 2px rgba(15, 18, 38, 0.05), 0 6px 22px rgba(15, 18, 38, 0.07);
+      --shadow-lg: 0 24px 60px rgba(15, 18, 38, 0.18);
+      --pin-shadow: 0 3px 10px rgba(15, 18, 38, 0.28), 0 0 0 1px rgba(15, 18, 38, 0.10);
+      --body-bg:
+        radial-gradient(1200px 600px at 85% -10%, rgba(124, 58, 237, 0.10), transparent 60%),
+        radial-gradient(900px 500px at -5% 5%, rgba(59, 130, 246, 0.08), transparent 60%),
+        var(--bg);
+      --attrib-bg: rgba(255, 255, 255, 0.88);
+      --legend-bg: rgba(255, 255, 255, 0.96);
+      --overlay-bg: rgba(15, 18, 38, 0.45);
+      --topbar-bg: rgba(255, 255, 255, 0.85);
+    }
+
+    /* ── Dark theme ── */
+    [data-theme="dark"] {
+      --bg: #0a0b1e;
+      --bg-2: #0d0f25;
+      --surface: #131530;
+      --surface-2: #181a38;
+      --surface-3: #1f2245;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-2: rgba(255, 255, 255, 0.14);
+      --text: #e8e9f0;
+      --text-2: #c9cbe0;
+      --muted: #8b8da6;
+      --muted-2: #5e6080;
+
+      --primary-bg: rgba(139, 92, 246, 0.16);
+      --low-bg: rgba(16, 185, 129, 0.14);
+      --mid-bg: rgba(245, 158, 11, 0.14);
+      --high-bg: rgba(239, 68, 68, 0.14);
+      --info-bg: rgba(59, 130, 246, 0.14);
+
+      --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.02), 0 8px 24px rgba(0, 0, 0, 0.35);
+      --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
+      --pin-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.35);
+      --body-bg:
+        radial-gradient(1200px 600px at 80% -10%, rgba(139, 92, 246, 0.10), transparent 60%),
+        radial-gradient(900px 500px at 0% 10%, rgba(59, 130, 246, 0.08), transparent 60%),
+        var(--bg);
+      --attrib-bg: rgba(10, 11, 30, 0.7);
+      --legend-bg: rgba(13, 15, 37, 0.92);
+      --overlay-bg: rgba(0, 0, 0, 0.65);
+      --topbar-bg: rgba(19, 21, 48, 0.6);
+
+      /* Override primary to its dark-tuned variant */
+      --primary: #8b5cf6;
+      --primary-2: #7c3aed;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--body-bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.65rem 1rem;
+      background: var(--topbar-bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-card);
+      color: var(--text);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .brand-logo {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--info));
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35);
+    }
+
+    .badge-flash {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--primary-bg);
+      color: var(--primary);
+      border: 1px solid color-mix(in oklab, var(--primary) 35%, transparent);
+      letter-spacing: 0.02em;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .topbar-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--low);
+      box-shadow: 0 0 12px var(--low);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.45;
+      }
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+      padding: 0;
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface-3);
+      border-color: var(--border-2);
+      transform: translateY(-1px);
+    }
+
+    .theme-toggle svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+
+    .theme-toggle .icon-sun {
+      display: none;
+    }
+
+    .theme-toggle .icon-moon {
+      display: block;
+    }
+
+    [data-theme="dark"] .theme-toggle .icon-sun {
+      display: block;
+    }
+
+    [data-theme="dark"] .theme-toggle .icon-moon {
+      display: none;
+    }
+
+    /* ── Station detail modal ── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay-bg);
+      backdrop-filter: blur(6px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      animation: modalFade 0.18s ease;
+    }
+
+    /* An explicit `display` in CSS overrides the HTML [hidden] attribute, so force it back. */
+    .modal-backdrop[hidden] {
+      display: none !important;
+    }
+
+    @keyframes modalFade {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes modalSlide {
+      from {
+        transform: translateY(12px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      animation: modalSlide 0.22s ease;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+      transition: background 0.15s ease;
+    }
+
+    .modal-close:hover {
+      background: var(--surface-3);
+      color: var(--text);
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.25rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+      padding-right: 2.2rem;
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-subtitle {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .modal-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
+    }
+
+    .modal-body {
+      padding: 1.1rem 1.25rem;
+    }
+
+    .modal-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 0.55rem;
+      margin-top: 0.2rem;
+    }
+
+    .modal-section-title:not(:first-child) {
+      margin-top: 1.1rem;
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .price-tile {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 0.7rem;
+    }
+
+    .price-tile.active {
+      border-color: var(--primary);
+      background: var(--primary-bg);
+    }
+
+    .price-tile .pt-label {
+      font-size: 0.66rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .price-tile .pt-value {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .price-tile.unavailable .pt-value {
+      color: var(--muted-2);
+    }
+
+    .modal-services {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+
+    .service-chip {
+      font-size: 0.72rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      padding: 1rem 1.25rem 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-route {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.7rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+      color: #fff;
+    }
+
+    .btn-route:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .btn-route svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn-gmaps {
+      background: #1a73e8;
+    }
+
+    .btn-gmaps:hover {
+      box-shadow: 0 6px 18px rgba(26, 115, 232, 0.35);
+    }
+
+    .btn-waze {
+      background: #33ccff;
+      color: #0a1c2b;
+    }
+
+    .btn-waze:hover {
+      box-shadow: 0 6px 18px rgba(51, 204, 255, 0.35);
+    }
+
+    @media (max-width: 480px) {
+      .modal-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Opening hours grid */
+    .hours-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--low-bg);
+      color: var(--low);
+      border: 1px solid color-mix(in oklab, var(--low) 35%, transparent);
+      border-radius: 999px;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .hours-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--low);
+      box-shadow: 0 0 8px var(--low);
+    }
+
+    .hours-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.3rem 1rem;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.7rem 0.85rem;
+    }
+
+    @media (max-width: 420px) {
+      .hours-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hours-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      padding: 0.18rem 0;
+      font-size: 0.82rem;
+    }
+
+    .hours-day {
+      color: var(--text-2);
+      font-weight: 500;
+    }
+
+    .hours-time {
+      font-family: var(--mono);
+      color: var(--text);
+      font-size: 0.78rem;
+      text-align: right;
+    }
+
+    .hours-open {
+      color: var(--low);
+      font-weight: 600;
+    }
+
+    .hours-closed {
+      color: var(--high);
+      font-weight: 500;
+    }
+
+    .hours-muted {
+      color: var(--muted-2);
+    }
+
+    /* ── Hero card ── */
+    .hero {
+      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-text {
+      flex: 1 1 360px;
+    }
+
+    .hero-title {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .hero-title-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--primary), var(--info));
+      display: inline-grid;
+      place-items: center;
+      font-size: 12px;
+    }
+
+    .hero-desc {
+      color: var(--muted);
+      font-size: 0.875rem;
+      max-width: 64ch;
+      line-height: 1.55;
+    }
+
+    .hero-cta {
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.08));
+      color: var(--low);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 0.5rem 0.95rem;
+      border-radius: 999px;
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+
+    .hero-cta:hover {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: rgba(16, 185, 129, 0.55);
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+    }
+
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .card-title-icon {
+      font-size: 0.95rem;
+      color: var(--text-2);
+    }
+
+    /* ── Search form ── */
+    .search-card {
+      margin-bottom: 1rem;
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.9fr) auto auto;
+      gap: 0.6rem;
+      align-items: stretch;
+    }
+
+    .field {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      min-width: 0;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .field:focus-within {
+      border-color: var(--primary);
+      background: rgba(139, 92, 246, 0.04);
+    }
+
+    .field-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .field input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.92rem;
+      font-weight: 500;
+      width: 100%;
+      padding: 2px 0;
+    }
+
+    .field input::placeholder {
+      color: var(--muted-2);
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface-3);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 0 1rem;
+      font-family: var(--sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: center;
+      transition: all 0.15s ease;
+      min-height: 44px;
+    }
+
+    .btn:not(.btn-primary):hover:not(:disabled) {
+      background: var(--surface-2);
+      border-color: var(--border-2);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, var(--primary) 0%, var(--primary-2) 100%);
+      border-color: var(--primary-2);
+      color: #fff !important;
+      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+      padding: 0 1.25rem;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(180deg, var(--primary-2) 0%, var(--primary) 100%);
+      border-color: var(--primary-2);
+      box-shadow: 0 6px 24px rgba(124, 58, 237, 0.5);
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+      filter: brightness(0.97);
+    }
+
+    .btn-icon {
+      width: 44px;
+      min-height: 44px;
+      padding: 0;
+    }
+
+    /* ── Fuel chips ── */
+    .fuel-row {
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .fuel-row-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 0.55rem;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .chip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted-2);
+    }
+
+    .chip:hover {
+      border-color: var(--border-2);
+      color: var(--text);
+    }
+
+    .chip.active {
+      background: var(--primary-bg);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    [data-theme="dark"] .chip.active {
+      color: #ddd6fe;
+      border-color: rgba(139, 92, 246, 0.55);
+    }
+
+    .chip.active .chip-dot {
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+    }
+
+    /* ── Stats cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
+      overflow: hidden;
+    }
+
+    .stat::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--stat-color, var(--primary));
+      opacity: 0.7;
+    }
+
+    .stat-label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+      margin-bottom: 0.45rem;
+    }
+
+    .stat-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--stat-bg, var(--primary-bg));
+      color: var(--stat-color, var(--primary));
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 0.2rem;
+    }
+
+    .stat-value sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: 2px;
+    }
+
+    .stat-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stat.low {
+      --stat-color: var(--low);
+      --stat-bg: var(--low-bg);
+    }
+
+    .stat.info {
+      --stat-color: var(--info);
+      --stat-bg: var(--info-bg);
+    }
+
+    .stat.mid {
+      --stat-color: var(--mid);
+      --stat-bg: var(--mid-bg);
+    }
+
+    .stat.high {
+      --stat-color: var(--high);
+      --stat-bg: var(--high-bg);
+    }
+
+    /* ── Two-column main grid ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Map ── */
+    .map-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 420px;
+      /* Don't stretch to match the list column — stay at natural height and follow scroll */
+      align-self: start;
+      position: sticky;
+      top: 1rem;
+      max-height: calc(100vh - 2rem);
+    }
+
+    .map-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 360px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 360px;
+    }
+
+    .leaflet-container {
+      background: var(--bg-2) !important;
+      font-family: var(--sans);
+    }
+
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .leaflet-popup-content {
+      margin: 0.7rem 0.85rem;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
+    .leaflet-popup-content b {
+      color: var(--text);
+    }
+
+    .leaflet-popup-content .pp-brand {
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .leaflet-popup-content .pp-addr {
+      color: var(--text-2);
+    }
+
+    .leaflet-popup-content .pp-city {
+      color: var(--muted);
+      font-size: 0.74rem;
+    }
+
+    .leaflet-popup-content .pp-price {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .leaflet-popup-content .pp-price b {
+      color: var(--text);
+    }
+
+    .leaflet-popup-tip-container,
+    .leaflet-popup-close-button {
+      color: var(--muted) !important;
+    }
+
+    .leaflet-popup-close-button:hover {
+      color: var(--text) !important;
+    }
+
+    .leaflet-control-attribution {
+      background: var(--attrib-bg) !important;
+      color: var(--muted) !important;
+    }
+
+    .leaflet-control-attribution a {
+      color: var(--text-2) !important;
+    }
+
+    .leaflet-control-zoom a {
+      background: var(--surface-2) !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    .map-legend {
+      position: absolute;
+      left: 0.75rem;
+      top: 0.75rem;
+      background: var(--legend-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.8rem;
+      backdrop-filter: blur(8px);
+      z-index: 500;
+      font-size: 0.72rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .map-legend-title {
+      color: var(--text);
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      font-size: 0.7rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0.18rem 0;
+      color: var(--text-2);
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.low {
+      background: var(--low);
+      box-shadow: 0 0 6px var(--low);
+    }
+
+    .legend-dot.mid {
+      background: var(--mid);
+      box-shadow: 0 0 6px var(--mid);
+    }
+
+    .legend-dot.high {
+      background: var(--high);
+      box-shadow: 0 0 6px var(--high);
+    }
+
+    .map-marker {
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Price pin marker */
+    .price-pin {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 46px;
+      height: 26px;
+      padding: 0 0.45rem;
+      border-radius: 13px;
+      color: #fff;
+      font: 600 0.72rem/1 var(--mono);
+      letter-spacing: -0.01em;
+      border: 2px solid rgba(255, 255, 255, 0.95);
+      box-shadow: var(--pin-shadow);
+      white-space: nowrap;
+      transform: translateY(-4px);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .price-pin::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      transform: translateX(-50%) rotate(45deg);
+      background: inherit;
+      border-right: 2px solid rgba(255, 255, 255, 0.95);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.95);
+    }
+
+    .price-pin:hover {
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 8px 22px rgba(15, 18, 38, 0.45), 0 0 0 1px rgba(15, 18, 38, 0.2);
+      z-index: 1000;
+    }
+
+    .price-pin.low {
+      background: #10b981;
+    }
+
+    .price-pin.mid {
+      background: #f59e0b;
+    }
+
+    .price-pin.high {
+      background: #ef4444;
+    }
+
+    .price-pin.cheapest {
+      background: #10b981;
+      min-width: 56px;
+      height: 30px;
+      font-size: 0.78rem;
+      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.6), 0 0 0 1px rgba(15, 18, 38, 0.2);
+    }
+
+    .price-pin .pin-medal {
+      margin-right: 0.25rem;
+      font-size: 0.85rem;
+    }
+
+    .center-pin {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #8b5cf6;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25), 0 4px 14px rgba(139, 92, 246, 0.6);
+      animation: centerPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes centerPulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25), 0 4px 14px rgba(139, 92, 246, 0.6);
+      }
+
+      50% {
+        box-shadow: 0 0 0 10px rgba(139, 92, 246, 0.08), 0 4px 14px rgba(139, 92, 246, 0.6);
+      }
+    }
+
+    /* ── Filters / station list ── */
+    .filters-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 420px;
+    }
+
+    .filters-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .select-field {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.6rem;
+    }
+
+    .select-field-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .select-field select {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 500;
+      width: 100%;
+      cursor: pointer;
+      padding-right: 18px;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'><path d='M3 4.5L6 7.5L9 4.5' stroke='%238b8da6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right center;
+    }
+
+    .select-field select option {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    .list-info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .count-tag {
+      color: var(--text-2);
+      background: var(--surface-3);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 500;
+      font-size: 0.7rem;
+    }
+
+    .sort-tabs {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .sort-tab {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.15s ease;
+    }
+
+    .sort-tab:hover {
+      color: var(--text-2);
+      border-color: var(--border-2);
+    }
+
+    .sort-tab.active {
+      background: var(--primary-bg);
+      border-color: color-mix(in oklab, var(--primary) 40%, transparent);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    [data-theme="dark"] .sort-tab.active {
+      color: #ddd6fe;
+    }
+
+    /* Favoris button with star icon */
+    .sort-tab-fav {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .sort-tab-fav svg {
+      width: 12px;
+      height: 12px;
+      fill: none;
+      stroke: currentColor;
+      transition: fill 0.15s ease, stroke 0.15s ease;
+    }
+
+    .sort-tab-fav.active svg,
+    .sort-tab-fav:hover svg {
+      fill: currentColor;
+    }
+
+    .fav-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .fav-badge[hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 560px) {
+      .sort-tab-fav {
+        padding: 4px 8px;
+      }
+    }
+
+    .stations-list {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 520px;
+      padding-right: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .stations-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .stations-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .stations-list::-webkit-scrollbar-thumb {
+      background: var(--surface-3);
+      border-radius: 3px;
+    }
+
+    .stations-list::-webkit-scrollbar-thumb:hover {
+      background: var(--border-2);
+    }
+
+    .station-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.7rem 0.85rem;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .station-card:hover {
+      border-color: var(--border-2);
+      background: var(--surface-2);
+    }
+
+    .station-card.best {
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .station-card.worst {
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .station-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.6rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .station-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text);
+      line-height: 1.25;
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .station-brand {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+
+    .station-price {
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: var(--surface-3);
+      color: var(--text);
+      line-height: 1.1;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .station-price.best {
+      background: var(--low-bg);
+      color: var(--low);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .station-price.worst {
+      background: var(--high-bg);
+      color: var(--high);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .station-price small {
+      display: block;
+      font-size: 0.6rem;
+      color: var(--muted);
+      font-family: var(--sans);
+      margin-top: 1px;
+      font-weight: 400;
+    }
+
+    .station-addr {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+    }
+
+    .station-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .station-meta-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+
+    .badge.dispo {
+      background: var(--low-bg);
+      color: var(--low);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge.rupture {
+      background: var(--high-bg);
+      color: var(--high);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge.autoroute {
+      background: var(--info-bg);
+      color: var(--info);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    /* ── Analysis section (Top5 + Distribution) ── */
+    .analysis-card {
+      margin-bottom: 1rem;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+
+    .subhead {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+      margin-bottom: 0.7rem;
+    }
+
+    .subhead .ic {
+      color: var(--low);
+    }
+
+    .subhead.bars .ic {
+      color: var(--info);
+    }
+
+    .top-brands {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .top-brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.75rem;
+    }
+
+    .top-brand-name {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .top-brand-rank {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--surface-3);
+      display: grid;
+      place-items: center;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .top-brand-price {
+      font-family: var(--mono);
+      font-size: 0.88rem;
+      color: var(--low);
+      font-weight: 500;
+    }
+
+    .histogram {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .histo-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+    }
+
+    .histo-label {
+      width: 95px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+    }
+
+    .histo-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .histo-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--info), var(--primary));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .histo-count {
+      width: 50px;
+      text-align: right;
+      color: var(--text-2);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+    }
+
+    /* ── Services ── */
+    .services-card {
+      margin-bottom: 1rem;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .service-item {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+    }
+
+    .service-name {
+      font-size: 0.78rem;
+      color: var(--text-2);
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-bottom: 6px;
+    }
+
+    .service-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .service-bar {
+      flex: 1;
+      height: 5px;
+      background: var(--surface-3);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .service-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--low), #34d399);
+      border-radius: 999px;
+    }
+
+    .service-pct {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      min-width: 28px;
+      text-align: right;
+    }
+
+    /* ── Autocomplete ── */
+    .autocomplete-wrap {
+      position: relative;
+    }
+
+    /* ── Recent searches chips row (persistent, always visible when populated) ── */
+    .recent-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.65rem 0 0;
+      margin-top: 0.55rem;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* The native [hidden] attribute is overridden by display:flex above — force it back */
+    .recent-row[hidden] {
+      display: none !important;
+    }
+
+    .recent-row-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .recent-row-label svg {
+      color: var(--primary);
+    }
+
+    .recent-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .recent-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.32rem 0.55rem 0.32rem 0.6rem;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      font-size: 0.78rem;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1;
+      max-width: 100%;
+    }
+
+    .recent-chip:hover {
+      background: var(--surface-3);
+      border-color: var(--primary);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .recent-chip-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 220px;
+    }
+
+    .recent-chip-remove {
+      display: inline-grid;
+      place-items: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--muted-2);
+      cursor: pointer;
+      padding: 0;
+      margin-left: 0.15rem;
+      transition: background 0.12s ease, color 0.12s ease;
+    }
+
+    .recent-chip-remove:hover {
+      background: var(--high-bg);
+      color: var(--high);
+    }
+
+    .recent-chip-remove svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    .recent-clear-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-family: var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.12s ease, color 0.12s ease;
+      flex-shrink: 0;
+    }
+
+    .recent-clear-btn:hover {
+      color: var(--high);
+      background: var(--high-bg);
+    }
+
+    @media (max-width: 560px) {
+      .recent-row-label {
+        font-size: 0.66rem;
+      }
+
+      .recent-chip {
+        font-size: 0.74rem;
+        padding: 0.3rem 0.5rem;
+      }
+
+      .recent-chip-text {
+        max-width: 140px;
+      }
+    }
+
+    .ac-list {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+
+    .ac-list.open {
+      display: block;
+    }
+
+    .ac-item {
+      padding: 0.55rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.1s ease;
+    }
+
+    .ac-item:hover {
+      background: var(--surface-3);
+      color: var(--text);
+    }
+
+    .ac-item small {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-family: var(--mono);
+    }
+
+    /* Recent searches header inside the dropdown */
+    .ac-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem 0.4rem;
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      background: var(--bg-2);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .ac-header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .ac-header-title svg {
+      width: 12px;
+      height: 12px;
+      color: var(--primary);
+    }
+
+    .ac-clear-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-family: var(--sans);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background 0.12s ease, color 0.12s ease;
+    }
+
+    .ac-clear-btn:hover {
+      color: var(--high);
+      background: var(--high-bg);
+    }
+
+    .ac-item.recent {
+      gap: 0.5rem;
+    }
+
+    .ac-item.recent .ac-recent-main {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ac-item.recent .ac-recent-main svg {
+      width: 13px;
+      height: 13px;
+      color: var(--muted-2);
+      flex-shrink: 0;
+    }
+
+    .ac-item.recent .ac-recent-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ac-item-remove {
+      background: none;
+      border: none;
+      color: var(--muted-2);
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+      flex-shrink: 0;
+    }
+
+    .ac-item.recent:hover .ac-item-remove {
+      opacity: 1;
+    }
+
+    .ac-item-remove:hover {
+      background: var(--high-bg);
+      color: var(--high);
+    }
+
+    .ac-item-remove svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 2rem;
+      padding: 1.5rem 0;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    footer strong {
+      color: var(--text-2);
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── States & loaders ── */
+    .alert {
+      margin: 0.75rem 0;
+      padding: 0.6rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      display: none;
+    }
+
+    .alert.info,
+    .alert.error {
+      display: block;
+    }
+
+    .alert.info {
+      background: var(--info-bg);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .alert.error {
+      background: var(--high-bg);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .loader {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--text-2);
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .analysis-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .services-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .map-card,
+      .filters-card {
+        min-height: 0;
+      }
+
+      .map-card {
+        position: static;
+        max-height: none;
+      }
+
+      #map {
+        min-height: 320px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .container {
+        padding: 0.75rem;
+      }
+
+      .topbar {
+        padding: 0.55rem 0.85rem;
+        border-radius: 16px;
+      }
+
+      .hide-sm {
+        display: none;
+      }
+
+      .hero {
+        padding: 1rem;
+      }
+
+      .hero-title {
+        font-size: 1.15rem;
+      }
+
+      .search-row {
+        grid-template-columns: 1fr;
+      }
+
+      .btn,
+      .btn-primary {
+        width: 100%;
+      }
+
+      .btn-icon {
+        width: 100%;
+      }
+
+      .filters-row {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+      }
+
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .station-card-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .station-price {
+        align-self: flex-start;
+      }
+
+      .histo-label {
+        width: 78px;
+        font-size: 0.65rem;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-value {
+        font-size: 1.3rem;
+      }
+
+      .hero-cta {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* ── Auth buttons in topbar ── */
+    .auth-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .auth-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-2);
+      line-height: 1;
+    }
+
+    .auth-btn:hover {
+      background: var(--surface-2);
+      border-color: var(--border-2);
+      color: var(--text);
+    }
+
+    .auth-btn svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .auth-btn.primary {
+      background: linear-gradient(180deg, var(--primary) 0%, var(--primary-2) 100%);
+      border-color: var(--primary-2);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+    }
+
+    .auth-btn.primary:hover {
+      background: linear-gradient(180deg, var(--primary-2) 0%, var(--primary) 100%);
+      color: #fff;
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    /* On mobile, the auth buttons collapse to icon-only (their label has .hide-sm) */
+    @media (max-width: 560px) {
+      .auth-btn-icon {
+        padding: 0.45rem;
+        width: 34px;
+        height: 34px;
+        justify-content: center;
+        gap: 0;
+      }
+
+      .auth-btn-icon svg {
+        width: 15px;
+        height: 15px;
+      }
+    }
+
+    .user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.3rem 0.55rem 0.3rem 0.35rem;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 0.78rem;
+      color: var(--text);
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .user-pill:hover {
+      background: var(--surface-3);
+      border-color: var(--border-2);
+    }
+
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--info));
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .user-pill-name {
+      font-weight: 500;
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      padding: 0.3rem;
+      min-width: 200px;
+      z-index: 1500;
+      display: none;
+    }
+
+    .user-menu.open {
+      display: block;
+    }
+
+    .user-menu-info {
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.25rem;
+    }
+
+    .user-menu-info .um-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .user-menu-info .um-email {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+      word-break: break-all;
+    }
+
+    .user-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.5rem 0.65rem;
+      border-radius: 8px;
+      color: var(--text-2);
+      font-size: 0.82rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      font-family: var(--sans);
+      transition: background 0.1s ease;
+    }
+
+    .user-menu-item:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    .user-menu-item svg {
+      width: 14px;
+      height: 14px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .user-menu-item.danger {
+      color: var(--high);
+    }
+
+    .user-menu-item.danger:hover {
+      background: var(--high-bg);
+    }
+
+    .user-menu-wrap {
+      position: relative;
+    }
+
+    /* ── Favorite star on station cards ── */
+    .fav-btn {
+      margin-left: auto;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted-2);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      padding: 0;
+    }
+
+    .fav-btn:hover {
+      background: var(--mid-bg);
+      color: var(--mid);
+      border-color: color-mix(in oklab, var(--mid) 30%, transparent);
+      transform: scale(1.05);
+    }
+
+    .fav-btn svg {
+      width: 17px;
+      height: 17px;
+      transition: transform 0.15s ease;
+    }
+
+    .fav-btn.active {
+      color: #f59e0b;
+      background: var(--mid-bg);
+      border-color: color-mix(in oklab, var(--mid) 35%, transparent);
+    }
+
+    .fav-btn.active svg {
+      fill: #f59e0b;
+      stroke: #f59e0b;
+    }
+
+    @keyframes starPulse {
+      0% {
+        transform: scale(1);
+      }
+
+      40% {
+        transform: scale(1.35);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .fav-btn.pulse svg {
+      animation: starPulse 0.4s ease;
+    }
+
+    /* ── Auth modal ── */
+    .auth-modal {
+      max-width: 420px;
+    }
+
+    /* Make sure the close button is always above the tabs */
+    .auth-modal .modal-close {
+      z-index: 10;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--bg-2);
+      border-bottom: 1px solid var(--border);
+      padding-right: 48px;
+      /* reserve room for the close button */
+    }
+
+    .auth-tab {
+      padding: 0.9rem 1rem;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+      font-family: var(--sans);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+
+    .auth-tab:hover {
+      color: var(--text-2);
+    }
+
+    .auth-tab.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .auth-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40%;
+      height: 2px;
+      background: var(--primary);
+      border-radius: 999px;
+    }
+
+    .auth-form {
+      padding: 1.25rem 1.4rem 1.4rem;
+    }
+
+    .auth-form-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+
+    .auth-form-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 1.1rem;
+      line-height: 1.45;
+    }
+
+    .auth-notice {
+      background: var(--mid-bg);
+      border: 1px solid color-mix(in oklab, var(--mid) 35%, transparent);
+      color: var(--mid);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .auth-notice svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Native [hidden] must win over display:flex above */
+    .auth-notice[hidden] {
+      display: none !important;
+    }
+
+    .auth-field {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0.8rem;
+    }
+
+    .auth-field label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 0.35rem;
+    }
+
+    .auth-field input {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.8rem;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .auth-field input:focus {
+      border-color: var(--primary);
+      background: var(--surface);
+    }
+
+    .auth-field input.error {
+      border-color: var(--high);
+      background: var(--high-bg);
+    }
+
+    .auth-error {
+      color: var(--high);
+      font-size: 0.76rem;
+      margin-top: 0.4rem;
+      display: none;
+    }
+
+    .auth-error.show {
+      display: block;
+    }
+
+    .auth-submit {
+      width: 100%;
+      margin-top: 0.4rem;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--primary-2) 100%);
+      border: 1px solid var(--primary-2);
+      color: #fff;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.9rem;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+    }
+
+    .auth-submit:hover {
+      background: linear-gradient(180deg, var(--primary-2) 0%, var(--primary) 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+    }
+
+    .auth-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .auth-switch button {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-size: 0.8rem;
+    }
+
+    .auth-switch button:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Toast notifications ── */
+    .toast-stack {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      z-index: 9999;
+      pointer-events: none;
+      max-width: calc(100vw - 2.4rem);
+    }
+
+    .toast {
+      pointer-events: auto;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+      min-width: 260px;
+      max-width: 380px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--primary);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      padding: 0.7rem 0.9rem 0.7rem 0.8rem;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.success {
+      border-left-color: var(--low);
+    }
+
+    .toast.error {
+      border-left-color: var(--high);
+    }
+
+    .toast.info {
+      border-left-color: var(--info, var(--primary));
+    }
+
+    .toast.warning {
+      border-left-color: var(--mid);
+    }
+
+    .toast.fade-out {
+      animation: toastOut 0.2s ease forwards;
+    }
+
+    .toast-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .toast.success .toast-icon {
+      color: var(--low);
+    }
+
+    .toast.error .toast-icon {
+      color: var(--high);
+    }
+
+    .toast.info .toast-icon {
+      color: var(--info, var(--primary));
+    }
+
+    .toast.warning .toast-icon {
+      color: var(--mid);
+    }
+
+    .toast-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .toast-msg {
+      color: var(--text-2);
+      font-size: 0.8rem;
+      word-wrap: break-word;
+    }
+
+    .toast-close {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      line-height: 1;
+      transition: background 0.12s ease, color 0.12s ease;
+    }
+
+    .toast-close:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes toastOut {
+      to {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+    }
+
+    /* ─── Dashboard, Car profile, Trip cost ─── */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .dash-tile {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .dash-tile .dt-label {
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .dash-tile .dt-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    .dash-tile .dt-sub {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+    .dash-section { margin-top: 1.25rem; }
+    .dash-section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .dash-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .dash-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.55rem 0.75rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    .dash-list-item .dli-meta {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    /* Form fields used in car profile / trip modals */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .form-row.full { grid-column: 1 / -1; }
+    .form-row label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      color: var(--text);
+      font: inherit;
+      width: 100%;
+    }
+    .form-row input:focus,
+    .form-row select:focus,
+    .form-row textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+    }
+    .form-row textarea { resize: vertical; min-height: 70px; }
+    .form-hint {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    /* Trip result card */
+    .trip-result {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 12%, transparent), color-mix(in srgb, var(--primary) 4%, transparent));
+      border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    .trip-result.show { display: block; }
+    .trip-result-big {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .trip-result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .trip-result-grid > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .trip-result-grid .trg-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .trip-result-grid .trg-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Station card extras (savings, fuel cost) */
+    .station-extras {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+      padding-top: 0.6rem;
+      border-top: 1px dashed var(--border);
+    }
+    .extra-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .extra-pill.savings {
+      background: color-mix(in srgb, #10b981 12%, transparent);
+      border-color: color-mix(in srgb, #10b981 35%, transparent);
+      color: #10b981;
+    }
+    .extra-pill.cost {
+      background: color-mix(in srgb, var(--primary) 10%, transparent);
+      border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+      color: var(--primary);
+    }
+
+    /* Favorite nickname / notes / drag */
+    .station-nickname {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: color-mix(in srgb, #f59e0b 15%, transparent);
+      border: 1px solid color-mix(in srgb, #f59e0b 40%, transparent);
+      color: #f59e0b;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .station-notes {
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.65rem;
+      background: var(--surface-2);
+      border-left: 3px solid var(--primary);
+      border-radius: 4px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .fav-edit-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.2rem 0.45rem;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.15s;
+    }
+    .fav-edit-btn:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+    .station-card.draggable { cursor: grab; }
+    .station-card.draggable:active { cursor: grabbing; }
+    .station-card.dragging { opacity: 0.5; transform: scale(0.98); }
+    .station-card.drag-over { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent); }
+
+    /* Favorites search bar */
+    .fav-search-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 0.8rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+    }
+    .fav-search-bar input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+    .fav-search-bar svg { color: var(--muted); flex-shrink: 0; }
+
+    /* Auth error reuse for form errors */
+    .auth-error {
+      display: none;
+      color: var(--high);
+      font-size: 0.78rem;
+      padding: 0.4rem 0;
+    }
+    .auth-error.show { display: block; }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .trip-result-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="brand">
+        <span class="brand-logo">C</span>
+        <span>CarbuFrance</span>
+        <span class="badge-flash">Données officielles</span>
+      </div>
+      <div class="topbar-right">
+        <!-- Auth area: filled by JS depending on session state -->
+        <div class="auth-actions" id="authActions"></div>
+
+        <span class="topbar-dot"></span>
+        <span class="hide-sm" style="font-size:0.72rem;color:var(--muted)">En direct</span>
+        <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème" title="Mode jour / nuit">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path
+              d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Hero card -->
+    <div class="hero">
+      <div class="hero-text">
+        <div class="hero-title">
+          <span class="hero-title-icon">✦</span>
+          Restez malin, optimisez chaque plein!
+        </div>
+        <div class="hero-desc">
+          Comparez rapidement les tarifs des stations-service, visualisez les distances et trouvez l’itinéraire le plus
+          avantageux pour faire le plein à tout moment.
+        </div>
+      </div>
+      <div class="hero-cta" id="updateInfo"
+        style="cursor:default; background:transparent; border:1px solid var(--border); color:var(--muted); font-size:0.75rem; padding:0.5rem 0.85rem;">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="opacity:0.6">
+          <path d="M8 1v7l4 2M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14z" stroke="currentColor" stroke-width="1.3"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span id="updateInfoText">Les informations présentes sur ce site proviennent des données officielles du
+          gouvernement français, publiées en open data via le site prix-carburants.gouv.fr</span>
+      </div>
+    </div>
+
+    <!-- Search card -->
+    <div class="card search-card">
+      <div class="search-row">
+        <div class="autocomplete-wrap">
+          <div class="field">
+            <span class="field-label">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+                <path d="M8 1.5a4.5 4.5 0 0 1 4.5 4.5c0 3.4-4.5 8.5-4.5 8.5S3.5 9.4 3.5 6A4.5 4.5 0 0 1 8 1.5z"
+                  stroke="currentColor" stroke-width="1.3" />
+                <circle cx="8" cy="6" r="1.6" stroke="currentColor" stroke-width="1.3" />
+              </svg>
+              Saisir une ville ou un code postal
+            </span>
+            <input id="cityInput" type="text" placeholder="Paris, Lyon, 75001…" autocomplete="off" />
+          </div>
+          <div id="acList" class="ac-list"></div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3" />
+              <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3" />
+            </svg>
+            Rayon d'action
+          </span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input id="radiusInput" type="number" min="1" max="50" value="5" style="max-width:60px" />
+            <span style="color:var(--muted);font-size:0.82rem">km</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="searchBtn" onclick="doSearch()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.6" />
+            <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+          Rechercher
+        </button>
+
+        <button class="btn" onclick="geoSearch()" title="Utiliser ma position actuelle">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Me localiser
+        </button>
+      </div>
+
+      <!-- Recent searches chips (visible whenever the user has recent searches) -->
+      <div class="recent-row" id="recentRow" hidden>
+        <div class="recent-row-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          Recherches récentes
+        </div>
+        <div class="recent-chips" id="recentChips"></div>
+        <button class="recent-clear-btn" id="recentClearBtn" type="button"
+          title="Effacer toutes les recherches récentes">Effacer</button>
+      </div>
+
+      <div class="fuel-row">
+        <div class="fuel-row-label">Choix du carburant</div>
+        <div class="chips" id="fuelChips">
+          <span class="chip active" data-fuel="Gazole"><span class="chip-dot"></span>Gazole</span>
+          <span class="chip" data-fuel="SP95"><span class="chip-dot"></span>SP95</span>
+          <span class="chip" data-fuel="SP98"><span class="chip-dot"></span>SP98</span>
+          <span class="chip" data-fuel="E10"><span class="chip-dot"></span>E10 (SP95-E10)</span>
+          <span class="chip" data-fuel="E85"><span class="chip-dot"></span>E85 (Superéthanol)</span>
+          <span class="chip" data-fuel="GPLc"><span class="chip-dot"></span>GPLc</span>
+        </div>
+      </div>
+
+      <div id="alertBox" class="alert"></div>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="stats-grid" id="statsGrid" style="display:none">
+      <div class="stat low">
+        <div class="stat-label"><span class="stat-icon">↓</span>Prix le plus bas</div>
+        <div class="stat-value" id="statMin">—<sub>€/L</sub></div>
+        <div class="stat-sub" id="statMinName">—</div>
+      </div>
+      <div class="stat info">
+        <div class="stat-label"><span class="stat-icon">≈</span>Prix moyen</div>
+        <div class="stat-value" id="statAvg">—<sub>€/L</sub></div>
+        <div class="stat-sub" id="statAvgCount">—</div>
+      </div>
+      <div class="stat mid">
+        <div class="stat-label"><span class="stat-icon">|</span>Prix médian</div>
+        <div class="stat-value" id="statMed">—<sub>€/L</sub></div>
+        <div class="stat-sub">milieu de la distribution</div>
+      </div>
+      <div class="stat high">
+        <div class="stat-label"><span class="stat-icon">↑</span>Prix le plus haut</div>
+        <div class="stat-value" id="statMax">—<sub>€/L</sub></div>
+        <div class="stat-sub" id="statMaxName">—</div>
+      </div>
+    </div>
+
+    <!-- Main grid : map + filters/list -->
+    <div class="main-grid">
+      <div class="card map-card">
+        <div class="card-title">
+          <span class="card-title-icon">◎</span>Carte interactive
+        </div>
+        <div class="map-wrap">
+          <div id="map"></div>
+          <div class="map-legend">
+            <div class="map-legend-title">Indicateurs de prix</div>
+            <div class="legend-item"><span class="legend-dot low"></span>Moins cher (inférieur à 33%)</div>
+            <div class="legend-item"><span class="legend-dot mid"></span>Moyen (33% – 66%)</div>
+            <div class="legend-item"><span class="legend-dot high"></span>Plus cher (supérieur à 66%)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card filters-card" id="filtersCard">
+        <div class="card-title">
+          <span class="card-title-icon">⚙</span>Filtres de tri & d'affichage
+        </div>
+        <div class="filters-row">
+          <div class="select-field">
+            <div class="select-field-label">Affichage</div>
+            <select id="filterType">
+              <option value="all">Tous types</option>
+              <option value="R">Routes</option>
+              <option value="A">Autoroutes</option>
+            </select>
+          </div>
+          <div class="select-field">
+            <div class="select-field-label">Enseigne</div>
+            <select id="filterBrand">
+              <option value="all">Toutes enseignes</option>
+            </select>
+          </div>
+          <div class="select-field">
+            <div class="select-field-label">Services</div>
+            <select id="filterService">
+              <option value="all">Tous services</option>
+            </select>
+          </div>
+        </div>
+        <div class="list-info-row">
+          <span id="countLabel" class="count-tag">0 station</span>
+          <div class="sort-tabs">
+            <button class="sort-tab sort-tab-fav" id="showFavBtn" onclick="showFavorites()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"
+                stroke-width="1.5" aria-hidden="true">
+                <polygon
+                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              <span class="hide-sm">Favoris</span>
+              <span class="fav-badge" id="favBadge" hidden>0</span>
+            </button>
+            <button class="sort-tab active" id="sortPriceBtn" onclick="setSort('price')">Prix</button>
+            <button class="sort-tab" id="sortDistBtn" onclick="setSort('distance')">Distance</button>
+            <button class="sort-tab" id="sortNameBtn" onclick="setSort('name')">Nom</button>
+          </div>
+        </div>
+        <div class="stations-list" id="resultsWrap">
+          <div class="empty-state">
+            <div>
+              <strong>Lancez votre première analyse</strong>
+              Saisissez une ville ou un code postal puis cliquez sur « Lancer l'analyse ».
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div style="margin-bottom:0.4rem"><strong>CarbuFrance</strong> — Console Gemini Flash 3</div>
+      <div>
+        Les données proviennent de l'API officielle des prix des carburants (gazole, SP95, SP98, E10, E85, GPLc),
+        éditée par la Direction générale de la Concurrence, de la Consommation et de la Répression des fraudes
+        (DGCCRF). Mises à jour toutes les 10 minutes.
+      </div>
+      <div style="margin-top:0.4rem">Données enrichies via <a href="https://www.openstreetmap.org/" target="_blank"
+          rel="noopener">OpenStreetMap</a>.</div>
+    </footer>
+  </div>
+
+  <!-- Toast notifications container -->
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- Station detail modal -->
+  <div class="modal-backdrop" id="stationModal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <button class="modal-close" id="modalCloseBtn" aria-label="Fermer">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- Auth modal (login / register) -->
+  <div class="modal-backdrop" id="authModal" hidden role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="modal auth-modal">
+      <button class="modal-close" id="authCloseBtn" aria-label="Fermer">×</button>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login" type="button">Connexion</button>
+        <button class="auth-tab" data-tab="register" type="button">Inscription</button>
+      </div>
+      <div id="authNotice" class="auth-notice" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        <span id="authNoticeText">Vous devez être connecté pour pouvoir ajouter la station aux favoris.</span>
+      </div>
+
+      <!-- Login form -->
+      <form class="auth-form" id="loginForm" novalidate>
+        <div class="auth-form-title" id="authTitle">Bon retour !</div>
+        <div class="auth-form-desc">Connectez-vous pour retrouver vos stations favorites et accéder à vos paramètres.
+        </div>
+
+        <div class="auth-field">
+          <label for="loginEmail">Nom d'utilisateur</label>
+          <input id="loginEmail" name="email" type="text" autocomplete="username" required
+            placeholder="Votre nom d'utilisateur" />
+        </div>
+        <div class="auth-field">
+          <label for="loginPassword">Mot de passe</label>
+          <input id="loginPassword" name="password" type="password" autocomplete="current-password" required
+            placeholder="••••••••" />
+        </div>
+        <div class="auth-error" id="loginError"></div>
+        <button class="auth-submit" type="submit">Se connecter</button>
+        <div class="auth-switch">
+          Pas encore de compte ?
+          <button type="button" data-tab="register">Créer un compte</button>
+        </div>
+      </form>
+
+      <!-- Register form -->
+      <form class="auth-form" id="registerForm" hidden novalidate>
+        <div class="auth-form-title">Créer votre compte CarbuFrance</div>
+        <div class="auth-form-desc">Rejoignez la communauté pour sauvegarder vos stations préférées en un clic.</div>
+
+        <div class="auth-field">
+          <label for="regName">Nom d'utilisateur</label>
+          <input id="regName" name="name" type="text" autocomplete="name" required placeholder="Votre nom" />
+        </div>
+        <div class="auth-field">
+          <label for="regEmail">Adresse e-mail</label>
+          <input id="regEmail" name="email" type="email" autocomplete="email" required placeholder="vous@exemple.fr" />
+        </div>
+        <div class="auth-field">
+          <label for="regPassword">Mot de passe (8 caractères min.)</label>
+          <input id="regPassword" name="password" type="password" autocomplete="new-password" required minlength="8"
+            placeholder="••••••••" />
+        </div>
+        <div class="auth-error" id="registerError"></div>
+        <button class="auth-submit" type="submit">Créer mon compte</button>
+        <div class="auth-switch">
+          Déjà inscrit ?
+          <button type="button" data-tab="login">Se connecter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script>
+    // ── Endpoints ──
+    const API_BASE = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records';
+    const GEO_API = 'https://geo.api.gouv.fr/communes';
+
+    // ── State ──
+    let allResults = [];   // raw API rows
+    let filteredResults = [];   // after radius + filters
+    let currentSort = 'price';
+    let currentFuel = 'Gazole';
+    let searchCenter = null; // {lat, lon}
+    let map = null;
+    let markersLayer = null;
+    let acTimeout;
+
+    // ── Fuel mapping ──
+    const FUEL_COLS = {
+      'Gazole': { price: 'gazole_prix', maj: 'gazole_maj', rupture: 'gazole_rupture_type' },
+      'SP95': { price: 'sp95_prix', maj: 'sp95_maj', rupture: 'sp95_rupture_type' },
+      'SP98': { price: 'sp98_prix', maj: 'sp98_maj', rupture: 'sp98_rupture_type' },
+      'E10': { price: 'e10_prix', maj: 'e10_maj', rupture: 'e10_rupture_type' },
+      'E85': { price: 'e85_prix', maj: 'e85_maj', rupture: 'e85_rupture_type' },
+      'GPLc': { price: 'gplc_prix', maj: 'gplc_maj', rupture: 'gplc_rupture_type' },
+    };
+    const ALL_FUELS = Object.keys(FUEL_COLS);
+
+    // ── Brand keywords (fallback if no OSM data) ──
+    const BRAND_KEYWORDS = [
+      'TOTAL ENERGIES', 'TOTAL ACCESS', 'TOTALENERGIES', 'TOTAL',
+      'ESSO EXPRESS', 'ESSO',
+      'BP', 'SHELL',
+      'AVIA', 'AGIP', 'ELAN',
+      'INTERMARCHE', 'INTERMARCHÉ',
+      'CARREFOUR MARKET', 'CARREFOUR CONTACT', 'CARREFOUR EXPRESS', 'CARREFOUR',
+      'LECLERC', 'E.LECLERC', 'E LECLERC',
+      'AUCHAN',
+      'SYSTEME U', 'SYSTÈME U', 'SUPER U', 'HYPER U', 'MARCHE U', 'U EXPRESS',
+      'CASINO', 'GEANT CASINO', 'GÉANT CASINO',
+      'CORA', 'NETTO', 'LIDL', 'ALDI',
+      'MONOPRIX', 'SIMPLY',
+      'BRICOMAN', 'BRICOMARCHE',
+      'MIGROL', 'OIL FRANCE', 'PICOTY',
+      'COSTCO', 'CASTORAMA'
+    ];
+
+    // id (string) -> { name: string, brand: string }
+    const stationNames = new Map();
+
+    // ── Naming ──
+    function getStationFullName(s) {
+      const osm = stationNames.get(String(s.id));
+      if (osm && (osm.name || osm.brand)) {
+        if (osm.name && osm.brand && osm.name.toLowerCase() !== osm.brand.toLowerCase()) {
+          return { name: osm.name, brand: osm.brand };
+        }
+        return { name: osm.name || osm.brand, brand: '' };
+      }
+      // Fallback to brand detection in address
+      const addr = (s.adresse || '').toUpperCase();
+      for (const brand of BRAND_KEYWORDS) {
+        if (addr.includes(brand)) {
+          const pretty = brand
+            .toLowerCase()
+            .replace(/(^|\s)\S/g, c => c.toUpperCase())
+            .replace('E.leclerc', 'E.Leclerc');
+          return { name: pretty, brand: '' };
+        }
+      }
+      if (s.adresse) return { name: capitalize(s.adresse), brand: '' };
+      if (s.ville) return { name: 'Station de ' + capitalize(s.ville), brand: '' };
+      return { name: 'Station', brand: '' };
+    }
+
+    function getStationBrand(s) {
+      const full = getStationFullName(s);
+      if (full.brand) return full.brand;
+      const upper = (full.name || '').toUpperCase();
+      for (const b of BRAND_KEYWORDS) {
+        if (upper.includes(b)) {
+          return b.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase()).replace('E.leclerc', 'E.Leclerc');
+        }
+      }
+      return '';
+    }
+
+    function capitalize(str) {
+      if (!str) return '';
+      return String(str).toLowerCase().split(/(\s|-|')/).map(p => {
+        if (!p || /\s|-|'/.test(p)) return p;
+        return p.charAt(0).toUpperCase() + p.slice(1);
+      }).join('');
+    }
+
+    function formatCity(s) {
+      const parts = [];
+      if (s.cp) parts.push(s.cp);
+      if (s.ville) parts.push(capitalize(s.ville));
+      return parts.join(' ');
+    }
+
+    // ── Distance (Haversine) ──
+    function distanceKm(a, b) {
+      if (!a || !b) return null;
+      const R = 6371;
+      const dLat = (b.lat - a.lat) * Math.PI / 180;
+      const dLon = (b.lon - a.lon) * Math.PI / 180;
+      const la1 = a.lat * Math.PI / 180;
+      const la2 = b.lat * Math.PI / 180;
+      const x = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(x));
+    }
+
+    // ── OSM enrichment ──
+    async function enrichWithOSM(stations) {
+      const coords = stations.map(s => s.geom).filter(g => g && typeof g.lat === 'number');
+      if (!coords.length) return false;
+      const lats = coords.map(g => g.lat);
+      const lons = coords.map(g => g.lon);
+      const pad = 0.02;
+      const south = Math.min(...lats) - pad;
+      const north = Math.max(...lats) + pad;
+      const west = Math.min(...lons) - pad;
+      const east = Math.max(...lons) + pad;
+      const query = `[out:json][timeout:20];
+(
+  node["amenity"="fuel"](${south},${west},${north},${east});
+  way["amenity"="fuel"](${south},${west},${north},${east});
+);
+out tags center;`;
+      const endpoints = [
+        'https://overpass-api.de/api/interpreter',
+        'https://overpass.kumi.systems/api/interpreter',
+        'https://overpass.private.coffee/api/interpreter',
+      ];
+      for (const url of endpoints) {
+        try {
+          const r = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'data=' + encodeURIComponent(query),
+          });
+          if (!r.ok) continue;
+          const data = await r.json();
+          let added = 0;
+          for (const el of data.elements || []) {
+            const t = el.tags || {};
+            const ref = t['ref:FR:prix-carburants'];
+            if (!ref) continue;
+            const name = (t.name || '').trim();
+            const brand = (t.brand || t.operator || '').trim();
+            if (!name && !brand) continue;
+            stationNames.set(String(ref), { name, brand });
+            added++;
+          }
+          return added > 0;
+        } catch (e) { /* try next */ }
+      }
+      return false;
+    }
+
+    // ── Autocomplete ──
+    const cityInput = document.getElementById('cityInput');
+    const acList = document.getElementById('acList');
+
+    // ── Recent searches state ──
+    const RECENT_LS_KEY = 'cf-recent-searches';
+    let recentSearches = []; // [{ postal_code, city_name, latitude, longitude, id? }]
+
+    cityInput.addEventListener('input', () => {
+      clearTimeout(acTimeout);
+      // Invalidate cached coordinates so a new lookup happens on the next search
+      delete cityInput.dataset.lat;
+      delete cityInput.dataset.lon;
+      delete cityInput.dataset.cp;
+      delete cityInput.dataset.nom;
+      const v = cityInput.value.trim();
+      if (v.length < 2) {
+        // Empty/very short input -> offer recent searches instead
+        if (v.length === 0 && recentSearches.length) renderRecentSearches();
+        else closeAC();
+        return;
+      }
+      acTimeout = setTimeout(() => fetchCities(v), 220);
+    });
+    cityInput.addEventListener('focus', () => {
+      if (cityInput.value.trim().length === 0 && recentSearches.length) {
+        renderRecentSearches();
+      }
+    });
+    cityInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { closeAC(); doSearch(); }
+      if (e.key === 'Escape') closeAC();
+    });
+    document.addEventListener('click', e => { if (!e.target.closest('.autocomplete-wrap')) closeAC(); });
+
+    // ── Recent searches: load / save / render / clear ──
+    async function loadRecentSearches() {
+      if (currentUser) {
+        const data = await apiCall('/recent_searches.php');
+        if (data.success && Array.isArray(data.data?.items)) {
+          recentSearches = data.data.items;
+          renderRecentChips();
+          return;
+        }
+      }
+      // Anonymous fallback or API failure -> localStorage
+      try {
+        const raw = localStorage.getItem(RECENT_LS_KEY);
+        recentSearches = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(recentSearches)) recentSearches = [];
+      } catch (e) {
+        recentSearches = [];
+      }
+      renderRecentChips();
+    }
+
+    async function saveRecentSearch(entry) {
+      // entry: { postal_code, city_name, latitude, longitude }
+      if (!entry || (!entry.postal_code && !entry.city_name)) return;
+      // De-duplicate in local state (key = postal_code|city_name)
+      const key = `${entry.postal_code || ''}|${entry.city_name || ''}`;
+      recentSearches = recentSearches.filter(r => `${r.postal_code || ''}|${r.city_name || ''}` !== key);
+      recentSearches.unshift({
+        postal_code: entry.postal_code || '',
+        city_name: entry.city_name || '',
+        latitude: entry.latitude ?? null,
+        longitude: entry.longitude ?? null,
+      });
+      recentSearches = recentSearches.slice(0, 20);
+
+      if (currentUser) {
+        apiCall('/recent_searches.php', {
+          method: 'POST',
+          body: JSON.stringify(entry),
+        }).catch(() => { });
+      } else {
+        try { localStorage.setItem(RECENT_LS_KEY, JSON.stringify(recentSearches)); }
+        catch (e) { }
+      }
+      renderRecentChips();
+    }
+
+    async function removeRecentSearch(item) {
+      recentSearches = recentSearches.filter(r => r !== item);
+      if (currentUser && item.id) {
+        apiCall(`/recent_searches.php?id=${item.id}`, { method: 'DELETE' }).catch(() => { });
+      } else {
+        try { localStorage.setItem(RECENT_LS_KEY, JSON.stringify(recentSearches)); }
+        catch (e) { }
+      }
+      renderRecentChips();
+      if (recentSearches.length) renderRecentSearches();
+      else closeAC();
+    }
+
+    async function clearAllRecentSearches() {
+      recentSearches = [];
+      if (currentUser) {
+        apiCall('/recent_searches.php?all=1', { method: 'DELETE' }).catch(() => { });
+      } else {
+        try { localStorage.removeItem(RECENT_LS_KEY); } catch (e) { }
+      }
+      renderRecentChips();
+      closeAC();
+    }
+
+    function renderRecentSearches() {
+      if (!recentSearches.length) { closeAC(); return; }
+      const clockIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+      const xIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      const titleIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+
+      const header = `
+    <div class="ac-header">
+      <span class="ac-header-title">${titleIcon} Recherches récentes</span>
+      <button type="button" class="ac-clear-btn" id="acClearAllBtn">Effacer</button>
+    </div>
+  `;
+      const items = recentSearches.slice(0, 5).map((r, idx) => {
+        const label = formatRecentLabel(r);
+        return `<div class="ac-item recent" data-recent-idx="${idx}">
+      <div class="ac-recent-main">
+        ${clockIcon}
+        <span class="ac-recent-text">${escape(label)}</span>
+      </div>
+      <button type="button" class="ac-item-remove" data-recent-remove="${idx}" aria-label="Retirer de l'historique" title="Retirer">${xIcon}</button>
+    </div>`;
+      }).join('');
+
+      acList.innerHTML = header + items;
+
+      // Click on item -> select and search
+      acList.querySelectorAll('.ac-item.recent').forEach(el => {
+        el.addEventListener('click', ev => {
+          // Ignore clicks on the remove button (handled separately)
+          if (ev.target.closest('.ac-item-remove')) return;
+          const idx = parseInt(el.getAttribute('data-recent-idx'), 10);
+          const r = recentSearches[idx];
+          if (!r) return;
+          const value = r.postal_code || r.city_name;
+          cityInput.value = value;
+          cityInput.dataset.cp = r.postal_code || '';
+          cityInput.dataset.nom = r.city_name || '';
+          cityInput.dataset.lat = r.latitude ?? '';
+          cityInput.dataset.lon = r.longitude ?? '';
+          closeAC();
+          doSearch();
+        });
+      });
+      // Remove buttons
+      acList.querySelectorAll('.ac-item-remove').forEach(btn => {
+        btn.addEventListener('click', ev => {
+          ev.stopPropagation();
+          const idx = parseInt(btn.getAttribute('data-recent-remove'), 10);
+          const r = recentSearches[idx];
+          if (r) removeRecentSearch(r);
+        });
+      });
+      // Clear all
+      const clearBtn = document.getElementById('acClearAllBtn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', ev => {
+          ev.stopPropagation();
+          clearAllRecentSearches();
+        });
+      }
+
+      acList.classList.add('open');
+    }
+
+    function formatRecentLabel(r) {
+      // Format expected by the user: "95870 (Bezons)"
+      if (r.postal_code && r.city_name) return `${r.postal_code} (${r.city_name})`;
+      if (r.postal_code) return r.postal_code;
+      return r.city_name || '';
+    }
+
+    // ── Persistent chips bar below the search input (5 most recent) ──
+    function renderRecentChips() {
+      const row = document.getElementById('recentRow');
+      const chips = document.getElementById('recentChips');
+      const clrBtn = document.getElementById('recentClearBtn');
+      if (!row || !chips) return;
+
+      const list = (recentSearches || []).slice(0, 5);
+      if (!list.length) {
+        row.hidden = true;
+        chips.innerHTML = '';
+        return;
+      }
+
+      const xIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+      chips.innerHTML = list.map((r, idx) => {
+        const label = formatRecentLabel(r);
+        return `<span class="recent-chip" data-chip-idx="${idx}" role="button" tabindex="0" title="Rechercher ${escape(label)}">
+      <span class="recent-chip-text">${escape(label)}</span>
+      <button type="button" class="recent-chip-remove" data-chip-remove="${idx}" aria-label="Retirer ${escape(label)} de l'historique" title="Retirer">${xIcon}</button>
+    </span>`;
+      }).join('');
+
+      // Click a chip -> trigger search
+      chips.querySelectorAll('.recent-chip').forEach(el => {
+        el.addEventListener('click', ev => {
+          if (ev.target.closest('.recent-chip-remove')) return;
+          const idx = parseInt(el.getAttribute('data-chip-idx'), 10);
+          const r = list[idx];
+          if (!r) return;
+          cityInput.value = r.postal_code || r.city_name;
+          cityInput.dataset.cp = r.postal_code || '';
+          cityInput.dataset.nom = r.city_name || '';
+          cityInput.dataset.lat = r.latitude ?? '';
+          cityInput.dataset.lon = r.longitude ?? '';
+          closeAC();
+          doSearch();
+        });
+        // Keyboard accessibility
+        el.addEventListener('keydown', ev => {
+          if (ev.key === 'Enter' || ev.key === ' ') {
+            ev.preventDefault();
+            el.click();
+          }
+        });
+      });
+      // Remove individual chip
+      chips.querySelectorAll('.recent-chip-remove').forEach(btn => {
+        btn.addEventListener('click', ev => {
+          ev.stopPropagation();
+          const idx = parseInt(btn.getAttribute('data-chip-remove'), 10);
+          const r = list[idx];
+          if (r) removeRecentSearch(r);
+        });
+      });
+
+      // Wire the "Effacer" button once
+      if (clrBtn && !clrBtn.dataset.bound) {
+        clrBtn.addEventListener('click', () => clearAllRecentSearches());
+        clrBtn.dataset.bound = '1';
+      }
+      row.hidden = false;
+    }
+
+    async function fetchCities(q) {
+      const isCP = /^\d+$/.test(q);
+      const url = isCP
+        ? `${GEO_API}?codePostal=${q}&fields=nom,codesPostaux,centre&limit=8`
+        : `${GEO_API}?nom=${encodeURIComponent(q)}&fields=nom,codesPostaux,centre&limit=8`;
+      try {
+        const r = await fetch(url);
+        const data = await r.json();
+        renderAC(data, isCP ? q : null);
+      } catch { }
+    }
+
+    function renderAC(cities, cp) {
+      if (!cities.length) { closeAC(); return; }
+      acList.innerHTML = cities.map(c => {
+        const code = cp || (c.codesPostaux && c.codesPostaux[0]) || '';
+        const ctr = c.centre && c.centre.coordinates ? c.centre.coordinates : null; // [lon, lat]
+        const data = JSON.stringify({ nom: c.nom, cp: code, lat: ctr ? ctr[1] : null, lon: ctr ? ctr[0] : null });
+        return `<div class="ac-item" data-payload='${escapeAttr(data)}'>
+      <span>${escape(c.nom)}</span><small>${escape(code)}</small>
+    </div>`;
+      }).join('');
+      acList.querySelectorAll('.ac-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const p = JSON.parse(el.dataset.payload);
+          cityInput.value = p.cp || p.nom;
+          cityInput.dataset.cp = p.cp || '';
+          cityInput.dataset.nom = p.nom;
+          cityInput.dataset.lat = p.lat || '';
+          cityInput.dataset.lon = p.lon || '';
+          closeAC();
+          doSearch();
+        });
+      });
+      acList.classList.add('open');
+    }
+    function closeAC() { acList.classList.remove('open'); }
+
+    // ── Fuel chips ──
+    document.querySelectorAll('#fuelChips .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#fuelChips .chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        currentFuel = chip.dataset.fuel;
+        if (allResults.length) render();
+      });
+    });
+
+    // ── Filter selects ──
+    ['filterType', 'filterBrand', 'filterService'].forEach(id => {
+      document.getElementById(id).addEventListener('change', () => render(false));
+    });
+    document.getElementById('radiusInput').addEventListener('change', () => {
+      if (allResults.length) render(false);
+    });
+
+    // ── Geolocation ──
+    function geoSearch() {
+      if (!navigator.geolocation) { showAlert('Géolocalisation indisponible.', 'error'); return; }
+      navigator.geolocation.getCurrentPosition(async pos => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        try {
+          const r = await fetch(`${GEO_API}?lat=${lat}&lon=${lon}&fields=nom,codesPostaux,centre&limit=1`);
+          const data = await r.json();
+          if (data.length) {
+            const c = data[0];
+            cityInput.value = c.codesPostaux[0] || c.nom;
+            cityInput.dataset.cp = c.codesPostaux[0] || '';
+            cityInput.dataset.nom = c.nom;
+            cityInput.dataset.lat = lat;
+            cityInput.dataset.lon = lon;
+            doSearch();
+          }
+        } catch { }
+      }, () => showAlert('Impossible d\'obtenir votre position.', 'error'));
+    }
+
+    // ── Search ──
+    async function doSearch() {
+      const val = cityInput.value.trim();
+      if (!val) { showAlert('Veuillez saisir une ville ou un code postal.', 'info'); return; }
+
+      const btn = document.getElementById('searchBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loader"></span> Analyse en cours…';
+      hideAlert();
+
+      try {
+        // Resolve center coordinates: prefer dataset (from autocomplete), else look up geo.api.gouv.fr
+        if (!cityInput.dataset.lat || !cityInput.dataset.lon) {
+          const isCP = /^\d+$/.test(val);
+          const url = isCP
+            ? `${GEO_API}?codePostal=${encodeURIComponent(val)}&fields=nom,codesPostaux,centre&limit=1`
+            : `${GEO_API}?nom=${encodeURIComponent(val)}&fields=nom,codesPostaux,centre&limit=1&boost=population`;
+          const r = await fetch(url);
+          const cities = await r.json();
+          if (!cities.length) {
+            showAlert('Lieu introuvable. Vérifiez la ville ou le code postal.', 'error');
+            resetBtn(btn); return;
+          }
+          const c = cities[0];
+          const ctr = c.centre && c.centre.coordinates; // [lon, lat]
+          if (!ctr) { showAlert('Coordonnées indisponibles pour ce lieu.', 'error'); resetBtn(btn); return; }
+          cityInput.dataset.lat = ctr[1];
+          cityInput.dataset.lon = ctr[0];
+          cityInput.dataset.cp = (c.codesPostaux && c.codesPostaux[0]) || '';
+          cityInput.dataset.nom = c.nom;
+        }
+
+        searchCenter = { lat: +cityInput.dataset.lat, lon: +cityInput.dataset.lon };
+
+        // Persist this search to the user's "recherches récentes"
+        saveRecentSearch({
+          postal_code: cityInput.dataset.cp || '',
+          city_name: cityInput.dataset.nom || '',
+          latitude: searchCenter.lat,
+          longitude: searchCenter.lon,
+        });
+
+        // Compute a bbox slightly larger than radius so the client-side haversine filter is precise.
+        // 1° latitude ≈ 111 km. Longitude varies with cos(lat).
+        const radiusKm = Math.max(1, parseInt(document.getElementById('radiusInput').value, 10) || 5);
+        const bboxRadius = radiusKm * 1.2; // 20% overscan
+        const dLat = bboxRadius / 111;
+        const dLon = bboxRadius / (111 * Math.max(0.1, Math.cos(searchCenter.lat * Math.PI / 180)));
+        const south = searchCenter.lat - dLat;
+        const north = searchCenter.lat + dLat;
+        const west = searchCenter.lon - dLon;
+        const east = searchCenter.lon + dLon;
+
+        const col = FUEL_COLS[currentFuel];
+
+        // Primary query: spatial bbox (works reliably on Opendatasoft)
+        let where = `in_bbox(geom, ${south.toFixed(5)}, ${west.toFixed(5)}, ${north.toFixed(5)}, ${east.toFixed(5)})`;
+        if (col) where += ` and ${col.price} is not null`;
+
+        const params = new URLSearchParams({
+          where,
+          limit: '100',
+          order_by: `${col.price} asc`,
+        });
+
+        let resp = await fetch(`${API_BASE}?${params}`);
+        if (!resp.ok) throw new Error('API error');
+        let data = await resp.json();
+        allResults = data.results || [];
+
+        // Fallback: if nothing in radius, search the whole department
+        if (!allResults.length && cityInput.dataset.cp) {
+          const dept = cityInput.dataset.cp.slice(0, 2);
+          const fbParams = new URLSearchParams({
+            where: `code_departement="${dept}" and ${col.price} is not null`,
+            limit: '100',
+            order_by: `${col.price} asc`,
+          });
+          const r2 = await fetch(`${API_BASE}?${fbParams}`);
+          if (r2.ok) {
+            const d2 = await r2.json();
+            allResults = d2.results || [];
+            if (allResults.length) {
+              showAlert(`Aucune station dans un rayon de ${radiusKm} km. Affichage du département ${dept}.`, 'info');
+            }
+          }
+        }
+
+        if (!allResults.length) {
+          showAlert('Aucune station trouvée. Essayez d\'augmenter le rayon ou de changer de carburant.', 'info');
+        }
+
+        render();
+
+        if (allResults.length) {
+          enrichWithOSM(allResults).then(updated => { if (updated) render(false); });
+        }
+      } catch (e) {
+        console.error('[v0] search error', e);
+        showAlert('Erreur lors de la récupération des données. Réessayez.', 'error');
+      }
+      resetBtn(btn);
+    }
+
+    function resetBtn(btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> Rechercher`;
+    }
+
+    // ── Sort ──
+    let showingFavorites = false; // true when the Favoris filter is active
+
+    function setSort(mode) {
+      // Clicking a sort tab exits favorites mode
+      const wasFavorites = showingFavorites;
+      showingFavorites = false;
+      favoritesSearchQuery = '';
+      document.getElementById('showFavBtn')?.classList.remove('active');
+      currentSort = mode;
+      ['price', 'distance', 'name'].forEach(m => {
+        const id = m === 'price' ? 'sortPriceBtn' : m === 'distance' ? 'sortDistBtn' : 'sortNameBtn';
+        document.getElementById(id).classList.toggle('active', m === mode);
+      });
+      // Restore the map visibility (was hidden in favorites view)
+      if (wasFavorites) {
+        const mapCard = document.getElementById('mapCard');
+        if (mapCard) mapCard.style.display = '';
+      }
+      render(false);
+    }
+
+    // ── Show only favorite stations ──
+    async function showFavorites() {
+      if (!currentUser) {
+        openAuthModal('login', true); // true = from favorites
+        return;
+      }
+      if (!userFavorites.length) {
+        showAlert('Vous n\'avez pas encore de stations favorites.', 'info');
+        return;
+      }
+
+      showingFavorites = true;
+      favoritesSearchQuery = ''; // reset search on entering favorites view
+      // Toggle active state on buttons
+      document.getElementById('showFavBtn')?.classList.add('active');
+      ['sortPriceBtn', 'sortDistBtn', 'sortNameBtn'].forEach(id => {
+        document.getElementById(id)?.classList.remove('active');
+      });
+
+      // Show loading state
+      const btn = document.getElementById('showFavBtn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<span class="loader"></span>';
+
+      try {
+        // Fetch all favorite stations by making individual requests or using OR conditions
+        // The Opendatasoft API uses specific syntax for filtering
+        const col = FUEL_COLS[currentFuel];
+
+        // Build OR conditions for each favorite ID
+        const conditions = userFavorites.map(id => `id="${id}"`).join(' or ');
+
+        const params = new URLSearchParams({
+          where: conditions,
+          limit: '100',
+        });
+        if (col) {
+          params.set('order_by', `${col.price} asc`);
+        }
+
+        const resp = await fetch(`${API_BASE}?${params}`);
+        if (!resp.ok) throw new Error('API error: ' + resp.status);
+        const data = await resp.json();
+        const results = data.results || [];
+
+        if (!results.length) {
+          showAlert('Aucune donnée disponible pour vos stations favorites.', 'info');
+          btn.innerHTML = originalHTML;
+          return;
+        }
+
+        // Use the same flow as normal search results
+        allResults = results;
+        searchCenter = null; // No center for favorites view
+        render();
+
+        // Enrich with OSM data (station names and brands) then re-render
+        enrichWithOSM(results).then(updated => { if (updated) render(false); });
+
+        // Update count label
+        const label = document.getElementById('countLabel');
+        if (label) label.textContent = results.length + ' favori' + (results.length > 1 ? 's' : '');
+
+        // Hide map when showing favorites (no single search center)
+        const mapCard = document.getElementById('mapCard');
+        if (mapCard) mapCard.style.display = 'none';
+
+      } catch (e) {
+        console.error('[v0] favorites fetch error', e);
+        showAlert('Erreur lors du chargement des favoris.', 'error');
+      }
+
+      btn.innerHTML = originalHTML;
+    }
+
+    // Update favorite badge count
+    function updateFavBadge() {
+      const badge = document.getElementById('favBadge');
+      if (!badge) return;
+      const count = userFavorites.length;
+      badge.textContent = count;
+      badge.hidden = count === 0;
+    }
+
+    // ── Helpers ──
+    function getPrice(s, fuel) {
+      const col = FUEL_COLS[fuel || currentFuel];
+      if (!col) return null;
+      const p = s[col.price];
+      return (p !== undefined && p !== null && p !== '') ? parseFloat(p) : null;
+    }
+    function parseServices(field) {
+      if (!field) return [];
+      try {
+        const parsed = typeof field === 'string' ? JSON.parse(field) : field;
+        if (parsed && Array.isArray(parsed.service)) return parsed.service;
+        if (Array.isArray(parsed)) return parsed;
+      } catch { }
+      return [];
+    }
+    function escape(s) {
+      if (s === null || s === undefined) return '';
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function escapeAttr(s) {
+      if (s === null || s === undefined) return '';
+      return String(s).replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function showAlert(msg, type) {
+      const el = document.getElementById('alertBox');
+      el.textContent = msg;
+      el.className = `alert ${type}`;
+    }
+    function hideAlert() { document.getElementById('alertBox').className = 'alert'; }
+
+    // ── Brand & services aggregation for filters ──
+    function populateFilterOptions(rows) {
+      // Brands
+      const brandCounts = new Map();
+      const serviceCounts = new Map();
+      rows.forEach(s => {
+        const b = getStationBrand(s) || (() => {
+          const n = getStationFullName(s).name;
+          return n;
+        })();
+        if (b) brandCounts.set(b, (brandCounts.get(b) || 0) + 1);
+        parseServices(s.services).forEach(sv => serviceCounts.set(sv, (serviceCounts.get(sv) || 0) + 1));
+      });
+      const brandSel = document.getElementById('filterBrand');
+      const currentBrand = brandSel.value;
+      brandSel.innerHTML = '<option value="all">Toutes enseignes</option>' +
+        [...brandCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 30)
+          .map(([b, c]) => `<option value="${escapeAttr(b)}">${escape(b)} (${c})</option>`).join('');
+      if ([...brandSel.options].some(o => o.value === currentBrand)) brandSel.value = currentBrand;
+
+      const svcSel = document.getElementById('filterService');
+      const currentSvc = svcSel.value;
+      svcSel.innerHTML = '<option value="all">Tous services</option>' +
+        [...serviceCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 30)
+          .map(([s, c]) => `<option value="${escapeAttr(s)}">${escape(s)} (${c})</option>`).join('');
+      if ([...svcSel.options].some(o => o.value === currentSvc)) svcSel.value = currentSvc;
+    }
+
+    // ── Apply filters + sort ──
+    function applyFilters() {
+      const radius = parseInt(document.getElementById('radiusInput').value, 10) || 0;
+      const fType = document.getElementById('filterType').value;
+      const fBrand = document.getElementById('filterBrand').value;
+      const fSvc = document.getElementById('filterService').value;
+
+      return allResults.filter(s => {
+        // Has selected fuel price
+        if (getPrice(s) === null) return false;
+        // Radius
+        if (radius > 0 && searchCenter && s.geom) {
+          const d = distanceKm(searchCenter, { lat: s.geom.lat, lon: s.geom.lon });
+          if (d === null || d > radius) return false;
+        }
+        // Type
+        if (fType !== 'all' && s.pop !== fType) return false;
+        // Brand
+        if (fBrand !== 'all') {
+          const b = getStationBrand(s) || getStationFullName(s).name;
+          if (b !== fBrand) return false;
+        }
+        // Service
+        if (fSvc !== 'all') {
+          const svcs = parseServices(s.services);
+          if (!svcs.includes(fSvc)) return false;
+        }
+        return true;
+      });
+    }
+
+    function sortRows(rows) {
+      const arr = [...rows];
+      if (currentSort === 'price') {
+        arr.sort((a, b) => (getPrice(a) ?? Infinity) - (getPrice(b) ?? Infinity));
+      } else if (currentSort === 'distance' && searchCenter) {
+        arr.sort((a, b) => {
+          const da = a.geom ? distanceKm(searchCenter, { lat: a.geom.lat, lon: a.geom.lon }) ?? Infinity : Infinity;
+          const db = b.geom ? distanceKm(searchCenter, { lat: b.geom.lat, lon: b.geom.lon }) ?? Infinity : Infinity;
+          return da - db;
+        });
+      } else if (currentSort === 'name') {
+        arr.sort((a, b) => getStationFullName(a).name.localeCompare(getStationFullName(b).name));
+      }
+      return arr;
+    }
+
+    // ── Main render ──
+    function render(recompute = true) {
+      if (recompute) populateFilterOptions(allResults);
+      filteredResults = sortRows(applyFilters());
+      console.log('[v0] render: allResults=', allResults.length,
+        'filtered=', filteredResults.length,
+        'fuel=', currentFuel,
+        'filterBrand=', document.getElementById('filterBrand').value,
+        'filterType=', document.getElementById('filterType').value,
+        'filterService=', document.getElementById('filterService').value,
+        'radius=', document.getElementById('radiusInput').value);
+      renderStats(filteredResults);
+      renderList(filteredResults);
+      renderMap(filteredResults);
+      updateLastUpdateInfo(filteredResults);
+    }
+
+    function renderStats(rows) {
+      const grid = document.getElementById('statsGrid');
+      if (!rows || !rows.length) { grid.style.display = 'none'; return; }
+
+      // Build list of (station, price) pairs to avoid recomputing/mismatched lookups
+      const pairs = rows
+        .map(s => ({ s, p: getPrice(s) }))
+        .filter(x => x.p !== null && !Number.isNaN(x.p));
+
+      if (!pairs.length) { grid.style.display = 'none'; return; }
+      grid.style.display = 'grid';
+
+      // Sort ascending by price
+      pairs.sort((a, b) => a.p - b.p);
+      const prices = pairs.map(x => x.p);
+
+      const mn = prices[0];
+      const mx = prices[prices.length - 1];
+      const sum = prices.reduce((a, b) => a + b, 0);
+      const avg = sum / prices.length;
+      const med = prices.length % 2 === 0
+        ? (prices[prices.length / 2 - 1] + prices[prices.length / 2]) / 2
+        : prices[(prices.length - 1) / 2];
+
+      const minSt = pairs[0].s;
+      const maxSt = pairs[pairs.length - 1].s;
+
+      console.log('[v0] renderStats: rows=', rows.length, 'priced=', prices.length,
+        'min=', mn, 'avg=', avg.toFixed(3), 'med=', med, 'max=', mx);
+
+      document.getElementById('statMin').innerHTML = `${mn.toFixed(3)}<sub>€/L</sub>`;
+      document.getElementById('statAvg').innerHTML = `${avg.toFixed(3)}<sub>€/L</sub>`;
+      document.getElementById('statMed').innerHTML = `${med.toFixed(3)}<sub>€/L</sub>`;
+      document.getElementById('statMax').innerHTML = `${mx.toFixed(3)}<sub>€/L</sub>`;
+      document.getElementById('statMinName').textContent = getStationFullName(minSt).name || '—';
+      document.getElementById('statMaxName').textContent = getStationFullName(maxSt).name || '—';
+      document.getElementById('statAvgCount').textContent =
+        `sur ${prices.length} station${prices.length > 1 ? 's' : ''}`;
+    }
+
+    function renderList(rows) {
+      const wrap = document.getElementById('resultsWrap');
+
+      // ─── In favorites view: inject search bar + apply local filter
+      let searchBarHTML = '';
+      let displayRows = rows;
+      if (showingFavorites) {
+        const q = favoritesSearchQuery.trim().toLowerCase();
+        if (q) {
+          displayRows = rows.filter(s => {
+            const full = getStationFullName(s);
+            const fav = userFavoritesData.find(f => f.station_id === s.id);
+            const haystack = [
+              full.name, getStationBrand(s), s.adresse, formatCity(s),
+              fav?.nickname || '', fav?.notes || '',
+            ].join(' ').toLowerCase();
+            return haystack.includes(q);
+          });
+        }
+        searchBarHTML = `
+          <div class="fav-search-bar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="favSearchInput" type="text" placeholder="Rechercher dans mes favoris (nom, ville, surnom, notes...)" value="${escapeAttr(favoritesSearchQuery)}" aria-label="Rechercher dans les favoris">
+          </div>`;
+      }
+
+      const countText = showingFavorites
+        ? `${displayRows.length} favori${displayRows.length > 1 ? 's' : ''}`
+        : `${displayRows.length} station${displayRows.length > 1 ? 's trouvées' : ' trouvée'}`;
+      document.getElementById('countLabel').textContent = countText;
+
+      if (!displayRows.length) {
+        const emptyMsg = showingFavorites && favoritesSearchQuery
+          ? `<div class="empty-state"><div><strong>Aucun favori ne correspond</strong>à votre recherche "${escape(favoritesSearchQuery)}".</div></div>`
+          : `<div class="empty-state"><div><strong>Aucun résultat</strong>Essayez d'élargir le rayon ou de changer de carburant.</div></div>`;
+        wrap.innerHTML = searchBarHTML + emptyMsg;
+        bindFavSearchInput();
+        return;
+      }
+      const prices = displayRows.map(getPrice).filter(p => p !== null);
+      const mn = Math.min(...prices), mx = Math.max(...prices);
+      wrap.innerHTML = searchBarHTML + displayRows.map(s => buildStationCard(s, mn, mx)).join('');
+      bindFavSearchInput();
+      if (showingFavorites) attachFavoritesDragAndDrop();
+    }
+
+    function bindFavSearchInput() {
+      const input = document.getElementById('favSearchInput');
+      if (!input) return;
+      input.addEventListener('input', e => {
+        favoritesSearchQuery = e.target.value;
+        cancelAnimationFrame(bindFavSearchInput._raf);
+        bindFavSearchInput._raf = requestAnimationFrame(() => {
+          renderList(filteredResults);
+          const fresh = document.getElementById('favSearchInput');
+          if (fresh) {
+            fresh.focus();
+            fresh.setSelectionRange(favoritesSearchQuery.length, favoritesSearchQuery.length);
+          }
+        });
+      });
+    }
+
+    function buildStationCard(s, mn, mx) {
+      const full = getStationFullName(s);
+      const brand = full.brand || getStationBrand(s);
+      const p = getPrice(s);
+      const isBest = p !== null && p === mn && mn !== mx;
+      const isWorst = p !== null && p === mx && mn !== mx;
+      const priceClass = isBest ? 'best' : isWorst ? 'worst' : '';
+      const cardClass = isBest ? 'best' : isWorst ? 'worst' : '';
+
+      let dist = '';
+      if (searchCenter && s.geom) {
+        const d = distanceKm(searchCenter, { lat: s.geom.lat, lon: s.geom.lon });
+        if (d !== null) dist = `<span class="station-meta-icon">◎ ${d.toFixed(1)} km</span>`;
+      }
+      const rupture = s[FUEL_COLS[currentFuel].rupture];
+      const status = rupture && rupture !== 'Aucune'
+        ? `<span class="badge rupture">Rupture</span>`
+        : `<span class="badge dispo">Dispo</span>`;
+      const highway = s.pop === 'A' ? `<span class="badge autoroute">Autoroute</span>` : '';
+      const services = parseServices(s.services);
+      const svcShort = services.slice(0, 2).map(escape).join(' · ');
+
+      const isFav = isFavorite(s.id);
+      const favData = isFav ? (userFavoritesData.find(f => f.station_id === s.id) || null) : null;
+      const nickname = favData?.nickname || '';
+      const notes = favData?.notes || '';
+
+      const favBtn = `<button class="fav-btn${isFav ? ' active' : ''}" data-fav-id="${escapeAttr(s.id)}"
+      aria-label="${isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}"
+      aria-pressed="${isFav ? 'true' : 'false'}"
+      title="${isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
+    <svg viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+  </button>`;
+
+      // ─── Savings calculator (vs most expensive in list)
+      let savingsPill = '';
+      if (p !== null && mn !== mx && p < mx) {
+        const tank = currentCarProfile?.tank_capacity || 50;
+        const savePerLiter = mx - p;
+        const savePerTank = savePerLiter * tank;
+        if (savePerTank >= 0.5) {
+          savingsPill = `<span class="extra-pill savings" title="Économie sur un plein de ${tank} L vs station la plus chère">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 12 9 23 4 18"/></svg>
+            −${savePerTank.toFixed(2)} €/plein
+          </span>`;
+        }
+      }
+
+      // ─── Conversion €/L → €/100 km via car profile
+      let costPill = '';
+      if (p !== null && currentCarProfile && currentCarProfile.consumption > 0) {
+        const cost100 = p * currentCarProfile.consumption;
+        costPill = `<span class="extra-pill cost" title="Coût pour 100 km (conso ${currentCarProfile.consumption} L/100km)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+          ${cost100.toFixed(2)} €/100 km
+        </span>`;
+      }
+
+      const extras = (savingsPill || costPill)
+        ? `<div class="station-extras">${savingsPill}${costPill}</div>`
+        : '';
+
+      // ─── Favorite nickname + edit + notes (favorites view only)
+      const nicknamePill = (showingFavorites && nickname)
+        ? `<span class="station-nickname" title="Surnom personnalisé">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M21.7 13.35l-1.05 1.06-2.07-2.06 1.06-1.06a.55.55 0 0 1 .77 0l1.29 1.29c.21.21.21.56 0 .77zM12 18.94l6.06-6.06 2.07 2.06L14.06 21H12v-2.06z"/></svg>
+            ${escape(nickname)}
+          </span>`
+        : '';
+      const editFavBtn = (showingFavorites && isFav)
+        ? `<button class="fav-edit-btn" data-edit-fav="${escapeAttr(s.id)}" title="Modifier surnom et notes">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Modifier
+          </button>`
+        : '';
+      const notesBlock = (showingFavorites && notes)
+        ? `<div class="station-notes">${escape(notes)}</div>`
+        : '';
+
+      const draggable = showingFavorites ? 'draggable="true"' : '';
+      const draggableClass = showingFavorites ? ' draggable' : '';
+
+      return `<div class="station-card${draggableClass} ${cardClass}" data-id="${escapeAttr(s.id)}" ${draggable}>
+    <div class="station-card-head">
+      <div class="station-name">
+        <span>${escape(full.name)}</span>
+        ${brand ? `<span class="station-brand">${escape(brand)}</span>` : ''}
+        ${nicknamePill}
+        ${favBtn}
+      </div>
+      <div class="station-price ${priceClass}">
+        ${p !== null ? p.toFixed(3) + ' €' : 'N/D'}
+        <small>${escape(currentFuel)}</small>
+      </div>
+    </div>
+    <div class="station-addr">${escape(s.adresse || '')}${s.adresse ? ' — ' : ''}${escape(formatCity(s))}</div>
+    <div class="station-meta">
+      ${status}${highway}${dist}
+      ${svcShort ? `<span class="station-meta-icon">⊕ ${svcShort}</span>` : ''}
+      ${editFavBtn}
+    </div>
+    ${notesBlock}
+    ${extras}
+  </div>`;
+    }
+
+    // ── Map (Leaflet) ──
+    let tileLayer = null;
+
+    function getTileUrl() {
+      const theme = document.documentElement.getAttribute('data-theme') || 'light';
+      return theme === 'dark'
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    }
+
+    function initMap() {
+      if (map) return;
+      map = L.map('map', { zoomControl: true, attributionControl: true }).setView([46.6, 2.5], 5);
+      tileLayer = L.tileLayer(getTileUrl(), {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    function applyMapTheme() {
+      if (!map || !tileLayer) return;
+      tileLayer.setUrl(getTileUrl());
+    }
+
+    function renderMap(rows) {
+      initMap();
+      markersLayer.clearLayers();
+
+      if (!rows.length) {
+        if (searchCenter) map.setView([searchCenter.lat, searchCenter.lon], 11);
+        return;
+      }
+
+      // Tercile thresholds based on visible prices: cheapest 1/3 = green, mid = orange, top = red
+      const prices = rows.map(getPrice).filter(p => p !== null).sort((a, b) => a - b);
+      const minPrice = prices[0];
+      const q1 = prices[Math.floor(prices.length / 3)] ?? minPrice;
+      const q2 = prices[Math.floor(prices.length * 2 / 3)] ?? minPrice;
+
+      const bounds = [];
+      // Sort so cheapest renders on top (last drawn = highest z-index in Leaflet layerGroup)
+      const sorted = [...rows]
+        .filter(s => s.geom && getPrice(s) !== null)
+        .sort((a, b) => getPrice(b) - getPrice(a));
+
+      sorted.forEach(s => {
+        const p = getPrice(s);
+        const isCheapest = p === minPrice;
+        let cls = 'price-pin ';
+        if (isCheapest) cls += 'cheapest';
+        else if (p <= q1) cls += 'low';
+        else if (p <= q2) cls += 'mid';
+        else cls += 'high';
+
+        const label = (isCheapest ? '<span class="pin-medal">★</span>' : '') + p.toFixed(3) + ' €';
+        const icon = L.divIcon({
+          className: '',
+          html: `<div class="${cls}">${label}</div>`,
+          iconSize: [isCheapest ? 64 : 54, isCheapest ? 30 : 26],
+          iconAnchor: [isCheapest ? 32 : 27, isCheapest ? 34 : 30],
+        });
+
+        const full = getStationFullName(s);
+        const brand = full.brand || getStationBrand(s);
+        const dist = searchCenter ? distanceKm(searchCenter, { lat: s.geom.lat, lon: s.geom.lon }) : null;
+
+        const m = L.marker([s.geom.lat, s.geom.lon], { icon, riseOnHover: true })
+          .bindPopup(`
+        <b>${escape(full.name)}</b>${brand ? ' <span class="pp-brand">�� ' + escape(brand) + '</span>' : ''}<br>
+        <span class="pp-addr">${escape(s.adresse || '')}</span><br>
+        <span class="pp-city">${escape(formatCity(s))}${dist !== null ? ' · ' + dist.toFixed(1) + ' km' : ''}</span>
+        <div class="pp-price"><b>${p.toFixed(3)} €/L</b> · ${escape(currentFuel)}</div>
+      `);
+        markersLayer.addLayer(m);
+        bounds.push([s.geom.lat, s.geom.lon]);
+      });
+
+      if (searchCenter) {
+        const centerIcon = L.divIcon({
+          className: '',
+          html: '<div class="center-pin"></div>',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        });
+        L.marker([searchCenter.lat, searchCenter.lon], { icon: centerIcon, interactive: false }).addTo(markersLayer);
+        bounds.push([searchCenter.lat, searchCenter.lon]);
+      }
+
+      if (bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+    }
+
+    // ── Last update info (from gov data) ──
+    function updateLastUpdateInfo(rows) {
+      const el = document.getElementById('updateInfoText');
+      if (!el) return;
+      if (!rows || !rows.length) { el.textContent = 'Aucune donnée'; return; }
+
+      // Find the most recent update timestamp across all fuel _maj fields
+      const fuelMajFields = ['gazole_maj', 'sp95_maj', 'sp98_maj', 'e10_maj', 'e85_maj', 'gplc_maj'];
+      let mostRecent = null;
+      rows.forEach(s => {
+        fuelMajFields.forEach(f => {
+          const v = s[f];
+          if (!v) return;
+          const d = new Date(v);
+          if (isNaN(d.getTime())) return;
+          if (!mostRecent || d > mostRecent) mostRecent = d;
+        });
+      });
+
+      if (!mostRecent) { el.textContent = 'Date inconnue'; return; }
+
+      // Format: "MAJ : 14/05/2026 à 09h47"
+      const pad = n => String(n).padStart(2, '0');
+      const dateStr = `${pad(mostRecent.getDate())}/${pad(mostRecent.getMonth() + 1)}/${mostRecent.getFullYear()}`;
+      const timeStr = `${pad(mostRecent.getHours())}h${pad(mostRecent.getMinutes())}`;
+      el.textContent = `MAJ : ${dateStr} à ${timeStr}`;
+    }
+
+    // ─�� Theme management ──
+    function applyTheme(t) {
+      const theme = t === 'dark' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+      try { localStorage.setItem('cf-theme', theme); } catch (e) { }
+      applyMapTheme();
+    }
+    function initTheme() {
+      let saved = null;
+      try { saved = localStorage.getItem('cf-theme'); } catch (e) { }
+      if (saved === 'dark' || saved === 'light') {
+        applyTheme(saved);
+      } else {
+        // Default = light. Could honor prefers-color-scheme here if desired.
+        applyTheme('light');
+      }
+      const btn = document.getElementById('themeToggle');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const cur = document.documentElement.getAttribute('data-theme');
+          applyTheme(cur === 'dark' ? 'light' : 'dark');
+        });
+      }
+    }
+
+    // ── Station detail modal ──
+    function openStationModal(s) {
+      const modal = document.getElementById('stationModal');
+      const content = document.getElementById('modalContent');
+      if (!modal || !content) return;
+
+      const full = getStationFullName(s);
+      const brand = full.brand || getStationBrand(s);
+      const services = parseServices(s.services);
+      const dist = (searchCenter && s.geom) ? distanceKm(searchCenter, { lat: s.geom.lat, lon: s.geom.lon }) : null;
+      const rupture = s[FUEL_COLS[currentFuel].rupture];
+      const isRupture = rupture && rupture !== 'Aucune';
+      const highway = s.pop === 'A';
+
+      // Build all-fuels price grid
+      const priceTiles = ALL_FUELS.map(f => {
+        const col = FUEL_COLS[f];
+        const v = s[col.price];
+        const active = f === currentFuel ? ' active' : '';
+        const unavailable = (v === null || v === undefined || v === '') ? ' unavailable' : '';
+        const value = (v !== null && v !== undefined && v !== '') ? Number(v).toFixed(3) + ' €' : 'N/D';
+        return `<div class="price-tile${active}${unavailable}">
+      <div class="pt-label">${escape(f)}</div>
+      <div class="pt-value">${escape(value)}</div>
+    </div>`;
+      }).join('');
+
+      const lat = s.geom ? s.geom.lat : null;
+      const lon = s.geom ? s.geom.lon : null;
+      const placeName = `${full.name}${brand ? ' (' + brand + ')' : ''}, ${s.adresse || ''} ${formatCity(s)}`.trim();
+
+      // Build routing URLs
+      const gmapsUrl = (lat !== null && lon !== null)
+        ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&destination_place_id=&travelmode=driving`
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}`;
+      const wazeUrl = (lat !== null && lon !== null)
+        ? `https://waze.com/ul?ll=${lat}%2C${lon}&navigate=yes`
+        : `https://waze.com/ul?q=${encodeURIComponent(placeName)}&navigate=yes`;
+
+      const statusBadge = isRupture
+        ? `<span class="badge rupture">Rupture ${escape(currentFuel)}</span>`
+        : `<span class="badge dispo">${escape(currentFuel)} disponible</span>`;
+      const highwayBadge = highway ? `<span class="badge autoroute">Autoroute</span>` : '';
+      const distBadge = dist !== null ? `<span class="badge" style="background:var(--primary-bg);color:var(--primary);border:1px solid rgba(124,58,237,0.3)">${dist.toFixed(1)} km</span>` : '';
+      const brandBadge = brand ? `<span class="station-brand">${escape(brand)}</span>` : '';
+
+      content.innerHTML = `
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">
+        <span>${escape(full.name)}</span>
+        ${brandBadge}
+      </h2>
+      <div class="modal-subtitle">
+        ${escape(s.adresse || '')}${s.adresse ? '<br>' : ''}${escape(formatCity(s))}
+      </div>
+      <div class="modal-meta">${statusBadge}${highwayBadge}${distBadge}</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section-title">Prix des carburants</div>
+      <div class="price-grid">${priceTiles}</div>
+      ${services.length ? `
+        <div class="modal-section-title">Services disponibles</div>
+        <div class="modal-services">
+          ${services.map(svc => `<span class="service-chip">${escape(svc)}</span>`).join('')}
+        </div>
+      ` : ''}
+      ${(() => {
+          const hh = renderHours(s.horaires);
+          return hh ? `<div class="modal-section-title">Horaires</div>${hh}` : '';
+        })()}
+    </div>
+    <div class="modal-actions">
+      <a class="btn-route btn-gmaps" href="${gmapsUrl}" target="_blank" rel="noopener" aria-label="Itinéraire Google Maps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        Google Maps
+      </a>
+      <a class="btn-route btn-waze" href="${wazeUrl}" target="_blank" rel="noopener" aria-label="Itinéraire Waze">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 11l18-8-8 18-2-8-8-2z"/>
+        </svg>
+        Waze
+      </a>
+    </div>
+  `;
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeStationModal() {
+      const modal = document.getElementById('stationModal');
+      if (!modal) return;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    // Parse the API "horaires" field (pseudo-JSON returned by data.economie.gouv.fr).
+    // Shape: { "@automate-24-24": "1"|"0", "jour": [ { "@id", "@nom", "@ferme", "horaire": {...} | [{...}] }, ... ] }
+    function parseHours(h) {
+      if (!h) return null;
+      let obj = h;
+      if (typeof obj === 'string') {
+        try { obj = JSON.parse(obj); } catch (e) { return null; }
+      }
+      if (!obj || typeof obj !== 'object') return null;
+      const auto24 = String(obj['@automate-24-24'] || '0') === '1';
+      const rawDays = obj.jour;
+      const days = Array.isArray(rawDays) ? rawDays : (rawDays ? [rawDays] : []);
+      const out = days.map(d => {
+        const closed = String(d['@ferme'] || '') !== '' && String(d['@ferme']) !== '0';
+        let slots = [];
+        const hr = d.horaire;
+        if (hr) {
+          const arr = Array.isArray(hr) ? hr : [hr];
+          slots = arr.map(s => ({
+            ouverture: formatTimeStr(s['@ouverture']),
+            fermeture: formatTimeStr(s['@fermeture']),
+          })).filter(s => s.ouverture || s.fermeture);
+        }
+        return {
+          id: parseInt(d['@id'], 10) || 0,
+          nom: d['@nom'] || '',
+          closed,
+          slots,
+        };
+      });
+      return { auto24, days: out };
+    }
+
+    function formatTimeStr(t) {
+      if (!t) return '';
+      const s = String(t).trim();
+      // Format "HH.MM" -> "HH:MM"; tolerate "HH:MM" or "H.M"
+      const m = s.match(/^(\d{1,2})[.:h](\d{1,2})$/);
+      if (!m) return s;
+      const hh = m[1].padStart(2, '0');
+      const mm = m[2].padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+
+    function isFullDay(slots) {
+      if (!slots || !slots.length) return false;
+      return slots.some(sl => (sl.ouverture === '00:00' && sl.fermeture === '00:00')
+        || (sl.ouverture === '00:00' && sl.fermeture === '24:00'));
+    }
+
+    function renderHours(h) {
+      const parsed = parseHours(h);
+      if (!parsed) return '';
+      const { auto24, days } = parsed;
+      if (auto24 || days.every(d => !d.closed && isFullDay(d.slots))) {
+        return `<div class="hours-badge"><span class="hours-dot"></span>Ouvert 24h/24 · 7j/7</div>`;
+      }
+      if (!days.length) return '';
+      const rows = days
+        .sort((a, b) => a.id - b.id)
+        .map(d => {
+          let value;
+          if (d.closed) {
+            value = `<span class="hours-closed">Fermé</span>`;
+          } else if (!d.slots.length) {
+            value = `<span class="hours-muted">—</span>`;
+          } else if (isFullDay(d.slots)) {
+            value = `<span class="hours-open">24h/24</span>`;
+          } else {
+            value = d.slots
+              .map(sl => `${escape(sl.ouverture || '—')} – ${escape(sl.fermeture || '—')}`)
+              .join(' &amp; ');
+          }
+          return `<div class="hours-row">
+        <span class="hours-day">${escape(d.nom)}</span>
+        <span class="hours-time">${value}</span>
+      </div>`;
+        })
+        .join('');
+      return `<div class="hours-grid">${rows}</div>`;
+    }
+
+    // Click delegation on station cards
+    document.addEventListener('click', e => {
+      // Favorite star: handled separately, don't open the station modal
+      const fav = e.target.closest('.fav-btn');
+      if (fav) {
+        e.stopPropagation();
+        handleFavoriteClick(fav);
+        return;
+      }
+      const card = e.target.closest('.station-card');
+      if (card) {
+        const id = card.getAttribute('data-id');
+        const s = (filteredResults.length ? filteredResults : allResults).find(x => String(x.id) === String(id));
+        if (s) openStationModal(s);
+        return;
+      }
+      const stModal = document.getElementById('stationModal');
+      if (e.target === stModal) closeStationModal();
+      const aModal = document.getElementById('authModal');
+      if (e.target === aModal) closeAuthModal();
+    });
+
+    document.getElementById('modalCloseBtn')?.addEventListener('click', closeStationModal);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeStationModal(); closeAuthModal(); closeUserMenu(); }
+    });
+
+    // ───────────────────────────────────────────────────────────────────────────
+    // Toast notifications (showAlert)
+    // ───────────────────────────────────────────────────────────────────────────
+    const TOAST_ICONS = {
+      success: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+      error: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+      warning: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+      info: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+    };
+    const TOAST_TITLES = {
+      success: 'Succès',
+      error: 'Erreur',
+      warning: 'Attention',
+      info: 'Information'
+    };
+
+    function showAlert(message, type = 'info', opts = {}) {
+      const stack = document.getElementById('toastStack');
+      if (!stack || !message) return;
+      const variant = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+      const duration = typeof opts.duration === 'number' ? opts.duration : (variant === 'error' ? 6000 : 4000);
+      const title = opts.title || TOAST_TITLES[variant];
+
+      const toast = document.createElement('div');
+      toast.className = `toast ${variant}`;
+      toast.setAttribute('role', variant === 'error' ? 'alert' : 'status');
+      toast.innerHTML = `
+    ${TOAST_ICONS[variant]}
+    <div class="toast-body">
+      <div class="toast-title">${escape(title)}</div>
+      <div class="toast-msg">${escape(message)}</div>
+    </div>
+    <button class="toast-close" type="button" aria-label="Fermer la notification">×</button>
+  `;
+
+      const remove = () => {
+        if (!toast.isConnected) return;
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.remove(), 200);
+      };
+      toast.querySelector('.toast-close').addEventListener('click', remove);
+      stack.appendChild(toast);
+      if (duration > 0) setTimeout(remove, duration);
+    }
+
+    // ───────────────────────────────────────────────────────────────────────────
+    // Authentication + Favorites (PHP/MySQL backend)
+    // ───────────────────────────────────────────────────────────────────────────
+
+    const AUTH_API = './api';
+    let currentUser = null; // { id, username, email, role }
+    let userFavorites = []; // Array of station IDs (strings)
+    let userFavoritesData = []; // Array of full favorite rows (nickname, notes, etc.)
+    let currentCarProfile = null; // Car profile (label, fuel_type, consumption, tank_capacity)
+
+    // --- API helper ---
+    async function apiCall(endpoint, options = {}) {
+      try {
+        const res = await fetch(`${AUTH_API}${endpoint}`, {
+          ...options,
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
+          }
+        });
+        return res.json();
+      } catch (e) {
+        return { success: false, message: 'Erreur de connexion au serveur.' };
+      }
+    }
+
+    // --- Email validation ---
+    function isValidEmail(e) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || '').trim());
+    }
+
+    // --- Session lifecycle ---
+    async function loadSession() {
+      try {
+        const data = await apiCall('/auth.php?action=me');
+        if (data.success && data.data.user) {
+          currentUser = data.data.user;
+          await Promise.all([loadUserFavorites(), loadCarProfile()]);
+        } else {
+          currentUser = null;
+          userFavorites = [];
+          userFavoritesData = [];
+          currentCarProfile = null;
+        }
+      } catch (e) {
+        currentUser = null;
+        userFavorites = [];
+        userFavoritesData = [];
+        currentCarProfile = null;
+      }
+    }
+
+    async function loadUserFavorites() {
+      if (!currentUser) { userFavorites = []; userFavoritesData = []; updateFavBadge(); return; }
+      try {
+        const data = await apiCall('/favorites.php');
+        if (data.success && data.data.ids) {
+          userFavorites = data.data.ids.map(String);
+          userFavoritesData = Array.isArray(data.data.favorites) ? data.data.favorites : [];
+        } else {
+          userFavorites = [];
+          userFavoritesData = [];
+        }
+      } catch (e) {
+        userFavorites = [];
+        userFavoritesData = [];
+      }
+      updateFavBadge();
+    }
+
+    async function loadCarProfile() {
+      if (!currentUser) { currentCarProfile = null; return; }
+      try {
+        const data = await apiCall('/car_profile.php');
+        currentCarProfile = (data.success && data.data && data.data.profile) ? data.data.profile : null;
+      } catch (e) {
+        currentCarProfile = null;
+      }
+    }
+
+    async function logout() {
+      const displayName = currentUser?.username || '';
+      try {
+        await apiCall('/auth.php?action=logout', { method: 'POST' });
+      } catch (e) { }
+      currentUser = null;
+      userFavorites = [];
+      userFavoritesData = [];
+      currentCarProfile = null;
+      updateFavBadge();
+      closeUserMenu();
+      renderAuthUI();
+      // Reload recents from localStorage (anonymous mode)
+      await loadRecentSearches();
+      // Refresh station list so star buttons reset
+      if (filteredResults.length) renderList(filteredResults);
+      showAlert(
+        displayName ? `À bientôt ${displayName} ! Vous avez été déconnecté.` : 'Vous avez été déconnecté avec succès.',
+        'success'
+      );
+    }
+
+    // --- UI rendering for auth area ---
+    function renderAuthUI() {
+      const wrap = document.getElementById('authActions');
+      if (!wrap) return;
+      if (currentUser) {
+        const displayName = currentUser.username || currentUser.email.split('@')[0];
+        const initial = displayName.trim().charAt(0).toUpperCase();
+        const isAdmin = currentUser.role === 'admin';
+        wrap.innerHTML = `
+      <div class="user-menu-wrap">
+        <button class="user-pill" id="userPillBtn" aria-haspopup="true" aria-expanded="false" title="Mon compte">
+          <span class="user-avatar">${escape(initial)}</span>
+          <span class="user-pill-name">${escape(displayName)}</span>
+        </button>
+        <div class="user-menu" id="userMenu" role="menu">
+          <div class="user-menu-info">
+            <div class="um-name">${escape(currentUser.username || '—')}${isAdmin ? ' <span style="color:var(--high);font-size:0.7rem">(Admin)</span>' : ''}</div>
+            <div class="um-email">${escape(currentUser.email)}</div>
+          </div>
+          ${isAdmin ? `
+          <a class="user-menu-item" href="admin.html" role="menuitem" style="text-decoration:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--primary)">
+              <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+            </svg>
+            Panel Admin
+          </a>
+          ` : ''}
+          <button class="user-menu-item" id="myDashboardBtn" role="menuitem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--primary)">
+              <rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/>
+              <rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>
+            </svg>
+            Mon dashboard
+          </button>
+          <button class="user-menu-item" id="myCarProfileBtn" role="menuitem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:#3b82f6">
+              <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+              <circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/>
+            </svg>
+            Mon profil voiture
+          </button>
+          <button class="user-menu-item" id="myFavoritesBtn" role="menuitem">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:#f59e0b">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            Mes favoris (<span id="favCount">${userFavorites.length}</span>)
+          </button>
+          <button class="user-menu-item" id="tripCostBtn" role="menuitem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:#10b981">
+              <circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"/><path d="M12 18V6"/>
+            </svg>
+            Coût d'un trajet
+          </button>
+          <button class="user-menu-item danger" id="logoutBtn" role="menuitem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Deconnexion
+          </button>
+        </div>
+      </div>
+    `;
+        document.getElementById('userPillBtn').addEventListener('click', toggleUserMenu);
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.getElementById('myDashboardBtn').addEventListener('click', () => {
+          closeUserMenu();
+          openDashboardModal();
+        });
+        document.getElementById('myCarProfileBtn').addEventListener('click', () => {
+          closeUserMenu();
+          openCarProfileModal();
+        });
+        document.getElementById('tripCostBtn').addEventListener('click', () => {
+          closeUserMenu();
+          openTripCostModal();
+        });
+        document.getElementById('myFavoritesBtn').addEventListener('click', async () => {
+          closeUserMenu();
+          await showFavorites();
+          // Scroll smoothly to the filters/list section
+          const target = document.getElementById('filtersCard');
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      } else {
+        wrap.innerHTML = `
+      <button class="auth-btn auth-btn-icon" id="openLoginBtn" type="button" aria-label="Connexion" title="Connexion">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        <span class="hide-sm">Connexion</span>
+      </button>
+      <button class="auth-btn auth-btn-icon primary" id="openRegisterBtn" type="button" aria-label="Inscription" title="Inscription">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="8.5" cy="7" r="4"/>
+          <line x1="20" y1="8" x2="20" y2="14"/>
+          <line x1="23" y1="11" x2="17" y2="11"/>
+        </svg>
+        <span class="hide-sm">Inscription</span>
+      </button>
+    `;
+        document.getElementById('openLoginBtn').addEventListener('click', () => openAuthModal('login'));
+        document.getElementById('openRegisterBtn').addEventListener('click', () => openAuthModal('register'));
+      }
+    }
+
+    function toggleUserMenu(e) {
+      e?.stopPropagation();
+      const menu = document.getElementById('userMenu');
+      const btn = document.getElementById('userPillBtn');
+      if (!menu || !btn) return;
+      const open = menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    function closeUserMenu() {
+      const menu = document.getElementById('userMenu');
+      const btn = document.getElementById('userPillBtn');
+      if (menu) menu.classList.remove('open');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.user-menu-wrap')) closeUserMenu();
+    });
+
+    // --- Auth modal ---
+    function openAuthModal(tab = 'login', noticeMsg = '') {
+      const modal = document.getElementById('authModal');
+      if (!modal) return;
+      switchAuthTab(tab);
+      const notice = document.getElementById('authNotice');
+      if (noticeMsg) {
+        document.getElementById('authNoticeText').textContent = noticeMsg;
+        notice.hidden = false;
+      } else {
+        notice.hidden = true;
+      }
+      // Clear errors and password fields
+      ['loginError', 'registerError'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('show'); el.textContent = '';
+      });
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('regPassword').value = '';
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      // Focus first field of active form
+      setTimeout(() => {
+        const form = document.querySelector('.auth-form:not([hidden])');
+        const first = form?.querySelector('input');
+        if (first) first.focus();
+      }, 30);
+    }
+
+    function closeAuthModal() {
+      const modal = document.getElementById('authModal');
+      if (!modal) return;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const regForm = document.getElementById('registerForm');
+      document.querySelectorAll('.auth-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+      });
+      if (tab === 'register') {
+        loginForm.hidden = true;
+        regForm.hidden = false;
+      } else {
+        loginForm.hidden = false;
+        regForm.hidden = true;
+      }
+    }
+
+    function showAuthError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+
+    // --- Form handlers ---
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const pwd = document.getElementById('loginPassword').value;
+      const errId = 'loginError';
+      document.getElementById(errId).classList.remove('show');
+      if (!email) { showAuthError(errId, 'Veuillez saisir votre identifiant.'); return; }
+      if (!pwd) { showAuthError(errId, 'Veuillez saisir votre mot de passe.'); return; }
+
+      const data = await apiCall('/auth.php?action=login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password: pwd })
+      });
+
+      if (!data.success) {
+        showAuthError(errId, data.message || 'Erreur de connexion.');
+        return;
+      }
+
+      currentUser = data.data.user;
+      await Promise.all([loadUserFavorites(), loadCarProfile()]);
+      await loadRecentSearches();
+      closeAuthModal();
+      renderAuthUI();
+      if (filteredResults.length) renderList(filteredResults);
+      const displayName = currentUser.username || currentUser.email.split('@')[0];
+      showAlert(`Bon retour ${displayName} ! Vous êtes maintenant connecté.`, 'success');
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const username = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
+      const pwd = document.getElementById('regPassword').value;
+      const errId = 'registerError';
+      document.getElementById(errId).classList.remove('show');
+      if (!username || username.length < 3) { showAuthError(errId, 'Le nom d\'utilisateur doit contenir au moins 3 caracteres.'); return; }
+      if (!isValidEmail(email)) { showAuthError(errId, 'Adresse e-mail invalide.'); return; }
+      if (!pwd || pwd.length < 8) { showAuthError(errId, 'Le mot de passe doit comporter au moins 8 caracteres.'); return; }
+
+      const data = await apiCall('/auth.php?action=register', {
+        method: 'POST',
+        body: JSON.stringify({ username, email, password: pwd })
+      });
+
+      if (!data.success) {
+        showAuthError(errId, data.message || 'Erreur lors de l\'inscription.');
+        return;
+      }
+
+      currentUser = data.data.user;
+      userFavorites = [];
+      // After registration, sync any localStorage recents to the new account
+      const pendingRecents = recentSearches.slice();
+      await loadRecentSearches();
+      pendingRecents.forEach(r => {
+        if (r.postal_code || r.city_name) saveRecentSearch(r);
+      });
+      closeAuthModal();
+      renderAuthUI();
+      if (filteredResults.length) renderList(filteredResults);
+      showAlert(`Bienvenue ${username} ! Votre compte a été créé avec succès.`, 'success');
+    }
+
+    // --- Favorites ---
+    function isFavorite(stationId) {
+      if (!currentUser || stationId === undefined || stationId === null) return false;
+      return userFavorites.includes(String(stationId));
+    }
+
+    async function toggleFavoriteAPI(stationId, stationData = {}) {
+      if (!currentUser) return { added: false };
+      const id = String(stationId);
+      const wasFav = userFavorites.includes(id);
+
+      if (wasFav) {
+        // Remove favorite
+        const data = await apiCall(`/favorites.php?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+        if (data.success) {
+          userFavorites = userFavorites.filter(f => f !== id);
+          updateFavBadge();
+          return { added: false, count: data.data?.count || userFavorites.length };
+        }
+      } else {
+        // Add favorite
+        const data = await apiCall('/favorites.php', {
+          method: 'POST',
+          body: JSON.stringify({
+            station_id: id,
+            station_name: stationData.name || '',
+            station_address: stationData.address || '',
+            station_city: stationData.city || ''
+          })
+        });
+        if (data.success) {
+          userFavorites.push(id);
+          updateFavBadge();
+          return { added: true, count: data.data?.count || userFavorites.length };
+        }
+      }
+      return { added: !wasFav };
+    }
+
+    async function handleFavoriteClick(btn) {
+      const id = btn.getAttribute('data-fav-id');
+      if (!id) return;
+      if (!currentUser) {
+        openAuthModal('login', 'Vous devez etre connecte pour pouvoir ajouter la station aux favoris.');
+        return;
+      }
+
+      // Find station data for storing
+      const station = (filteredResults.length ? filteredResults : allResults).find(s => String(s.id) === String(id));
+      const stationData = station ? {
+        name: getStationFullName(station).name,
+        address: station.adresse || '',
+        city: station.ville || ''
+      } : {};
+
+      // Optimistic UI update
+      const wasFav = isFavorite(id);
+      const nowFav = !wasFav;
+      btn.classList.toggle('active', nowFav);
+      btn.setAttribute('aria-pressed', nowFav ? 'true' : 'false');
+      btn.setAttribute('aria-label', nowFav ? 'Retirer des favoris' : 'Ajouter aux favoris');
+      btn.setAttribute('title', nowFav ? 'Retirer des favoris' : 'Ajouter aux favoris');
+      const svg = btn.querySelector('svg');
+      if (svg) svg.setAttribute('fill', nowFav ? 'currentColor' : 'none');
+      btn.classList.remove('pulse');
+      void btn.offsetWidth;
+      btn.classList.add('pulse');
+
+      // Call API
+      const result = await toggleFavoriteAPI(id, stationData);
+
+      // Update favorites count in user menu if open
+      const fc = document.getElementById('favCount');
+      if (fc) fc.textContent = userFavorites.length;
+
+      // Feedback toast
+      const stationLabel = stationData.name || 'Station';
+      if (result.added) {
+        showAlert(`${stationLabel} ajoutée à vos favoris.`, 'success', { duration: 2500 });
+      } else {
+        showAlert(`${stationLabel} retirée de vos favoris.`, 'info', { duration: 2500 });
+      }
+    }
+
+    function showFavoritesOnly() {
+      if (!userFavorites.length) {
+        showAlert('Vous n\'avez encore aucune station favorite. Cliquez sur l\'etoile d\'une station pour l\'ajouter.', 'info');
+        return;
+      }
+      if (!allResults.length) {
+        showAlert('Lancez une recherche puis cliquez sur l\'etoile pour ajouter des favoris.', 'info');
+        return;
+      }
+      const subset = allResults.filter(s => userFavorites.includes(String(s.id)));
+      if (!subset.length) {
+        showAlert(`Vous avez ${userFavorites.length} favori(s) mais aucun ne se trouve dans la zone affichee actuellement.`, 'info');
+        return;
+      }
+      filteredResults = sortRows(subset);
+      renderStats(filteredResults);
+      renderList(filteredResults);
+      renderMap(filteredResults);
+    }
+
+    // --- Wire up auth modal events ---
+    document.getElementById('authCloseBtn')?.addEventListener('click', closeAuthModal);
+    document.querySelectorAll('[data-tab]').forEach(el => {
+      el.addEventListener('click', () => switchAuthTab(el.dataset.tab));
+    });
+    document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
+    document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
+
+    // Init theme + map + auth on load
+    initTheme();
+    // Render auth UI IMMEDIATELY (logged-out state), then try to load session in background
+    renderAuthUI();
+    // Load anonymous recent searches first (localStorage), then refresh from server if logged in
+    loadRecentSearches().catch(() => { });
+    loadSession().then(() => {
+      renderAuthUI();
+      return loadRecentSearches();
+    }).catch(() => { });
+    window.addEventListener('load', initMap);
+
+    // ════════════════════════════════════════════════════════════════════════
+    // FEATURE MODALS: Dashboard, Car profile, Trip cost, Favorite edit
+    // ════════════════════════════════════════════════════════════════════════
+    const FUEL_LABELS = {
+      gazole: 'Gazole', sp95: 'SP95', sp98: 'SP98',
+      e10: 'E10', e85: 'E85', gplc: 'GPLc',
+    };
+
+    function mountFeatureModals() {
+      if (document.getElementById('dashboardModal')) return;
+      const html = `
+        <div class="modal-backdrop" id="dashboardModal" hidden role="dialog" aria-modal="true" aria-labelledby="dashTitle">
+          <div class="modal" style="max-width:780px">
+            <button class="modal-close" id="dashCloseBtn" aria-label="Fermer">×</button>
+            <div class="modal-header">
+              <h2 class="modal-title" id="dashTitle">Mon dashboard</h2>
+              <div class="modal-subtitle">Aperçu de votre activité sur CarbuFrance</div>
+            </div>
+            <div class="modal-body" id="dashBody">
+              <div class="empty-state"><div>Chargement…</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-backdrop" id="carProfileModal" hidden role="dialog" aria-modal="true" aria-labelledby="carTitle">
+          <div class="modal" style="max-width:560px">
+            <button class="modal-close" id="carCloseBtn" aria-label="Fermer">×</button>
+            <div class="modal-header">
+              <h2 class="modal-title" id="carTitle">Mon profil voiture</h2>
+              <div class="modal-subtitle">Vos infos servent à calculer le coût au 100 km et les économies par plein</div>
+            </div>
+            <div class="modal-body">
+              <form id="carProfileForm" class="form-grid">
+                <div class="form-row">
+                  <label for="carLabel">Nom du véhicule</label>
+                  <input type="text" id="carLabel" placeholder="Ma voiture" maxlength="50">
+                </div>
+                <div class="form-row">
+                  <label for="carFuel">Carburant</label>
+                  <select id="carFuel">
+                    <option value="gazole">Gazole</option><option value="sp95">SP95</option>
+                    <option value="sp98">SP98</option><option value="e10">E10</option>
+                    <option value="e85">E85</option><option value="gplc">GPLc</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <label for="carBrand">Marque</label>
+                  <input type="text" id="carBrand" placeholder="Renault, Peugeot..." maxlength="60">
+                </div>
+                <div class="form-row">
+                  <label for="carModel">Modèle</label>
+                  <input type="text" id="carModel" placeholder="Clio, 308..." maxlength="60">
+                </div>
+                <div class="form-row">
+                  <label for="carConso">Consommation (L/100 km) *</label>
+                  <input type="number" id="carConso" step="0.1" min="2" max="30" placeholder="6.5" required>
+                  <span class="form-hint">Mesurée à la pompe en moyenne</span>
+                </div>
+                <div class="form-row">
+                  <label for="carTank">Capacité réservoir (L)</label>
+                  <input type="number" id="carTank" step="1" min="10" max="200" placeholder="50">
+                  <span class="form-hint">Sert au calcul d'économies par plein</span>
+                </div>
+                <div class="form-row full">
+                  <div id="carProfileError" class="auth-error"></div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-actions">
+              <button class="btn btn-secondary" id="carDeleteBtn" type="button" style="margin-right:auto;display:none">Supprimer</button>
+              <button class="btn btn-secondary" id="carCancelBtn" type="button">Annuler</button>
+              <button class="btn btn-primary" id="carSaveBtn" type="button">Enregistrer</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-backdrop" id="tripCostModal" hidden role="dialog" aria-modal="true" aria-labelledby="tripTitle">
+          <div class="modal" style="max-width:560px">
+            <button class="modal-close" id="tripCloseBtn" aria-label="Fermer">×</button>
+            <div class="modal-header">
+              <h2 class="modal-title" id="tripTitle">Calculer le coût d'un trajet</h2>
+              <div class="modal-subtitle">Estimez ce que vous allez dépenser en carburant</div>
+            </div>
+            <div class="modal-body">
+              <form id="tripForm" class="form-grid">
+                <div class="form-row">
+                  <label for="tripDist">Distance (km) *</label>
+                  <input type="number" id="tripDist" step="1" min="1" placeholder="250" required>
+                </div>
+                <div class="form-row">
+                  <label for="tripConso">Consommation (L/100 km)</label>
+                  <input type="number" id="tripConso" step="0.1" min="2" max="30" placeholder="6.5">
+                  <span class="form-hint">Pré-rempli depuis le profil voiture</span>
+                </div>
+                <div class="form-row">
+                  <label for="tripPrice">Prix du carburant (€/L)</label>
+                  <input type="number" id="tripPrice" step="0.001" min="0.5" max="5" placeholder="1.850">
+                  <span class="form-hint">Prix moyen actuel pré-rempli si dispo</span>
+                </div>
+                <div class="form-row">
+                  <label for="tripPassengers">Passagers (covoiturage)</label>
+                  <input type="number" id="tripPassengers" step="1" min="1" max="9" value="1">
+                </div>
+              </form>
+              <div class="trip-result" id="tripResult">
+                <div class="dash-tile" style="background:transparent;border:0;padding:0">
+                  <div class="dt-label">Coût total estimé</div>
+                  <div class="trip-result-big" id="tripTotal">— €</div>
+                </div>
+                <div class="trip-result-grid">
+                  <div><span class="trg-label">Carburant nécessaire</span><span class="trg-value" id="tripFuel">— L</span></div>
+                  <div><span class="trg-label">Coût aller-retour</span><span class="trg-value" id="tripRT">— €</span></div>
+                  <div><span class="trg-label">Coût / passager</span><span class="trg-value" id="tripPP">— €</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="btn btn-secondary" id="tripCloseBtn2" type="button">Fermer</button>
+              <button class="btn btn-primary" id="tripCalcBtn" type="button">Calculer</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-backdrop" id="favEditModal" hidden role="dialog" aria-modal="true" aria-labelledby="favEditTitle">
+          <div class="modal" style="max-width:480px">
+            <button class="modal-close" id="favEditCloseBtn" aria-label="Fermer">×</button>
+            <div class="modal-header">
+              <h2 class="modal-title" id="favEditTitle">Modifier le favori</h2>
+              <div class="modal-subtitle" id="favEditSubtitle">—</div>
+            </div>
+            <div class="modal-body">
+              <div class="form-grid">
+                <div class="form-row full">
+                  <label for="favNickname">Surnom personnalisé</label>
+                  <input type="text" id="favNickname" placeholder="ex: Station du boulot" maxlength="100">
+                </div>
+                <div class="form-row full">
+                  <label for="favNotes">Notes</label>
+                  <textarea id="favNotes" placeholder="Ouvert 24/7, à proximité du périph..." maxlength="500"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="btn btn-secondary" id="favEditCancelBtn" type="button">Annuler</button>
+              <button class="btn btn-primary" id="favEditSaveBtn" type="button">Enregistrer</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', html);
+
+      ['dashboardModal', 'carProfileModal', 'tripCostModal', 'favEditModal'].forEach(id => {
+        const m = document.getElementById(id);
+        m.addEventListener('click', e => { if (e.target === m) m.hidden = true; });
+      });
+      document.getElementById('dashCloseBtn').onclick = () => document.getElementById('dashboardModal').hidden = true;
+      document.getElementById('carCloseBtn').onclick = () => document.getElementById('carProfileModal').hidden = true;
+      document.getElementById('carCancelBtn').onclick = () => document.getElementById('carProfileModal').hidden = true;
+      document.getElementById('tripCloseBtn').onclick = () => document.getElementById('tripCostModal').hidden = true;
+      document.getElementById('tripCloseBtn2').onclick = () => document.getElementById('tripCostModal').hidden = true;
+      document.getElementById('favEditCloseBtn').onclick = () => document.getElementById('favEditModal').hidden = true;
+      document.getElementById('favEditCancelBtn').onclick = () => document.getElementById('favEditModal').hidden = true;
+      document.getElementById('carSaveBtn').onclick = saveCarProfile;
+      document.getElementById('carDeleteBtn').onclick = deleteCarProfile;
+      document.getElementById('tripCalcBtn').onclick = computeTripCost;
+      document.getElementById('favEditSaveBtn').onclick = saveFavEdit;
+    }
+
+    // ─── Dashboard
+    async function openDashboardModal() {
+      if (!currentUser) { openAuthModal('login'); return; }
+      mountFeatureModals();
+      const modal = document.getElementById('dashboardModal');
+      const body = document.getElementById('dashBody');
+      body.innerHTML = '<div class="empty-state"><div>Chargement…</div></div>';
+      modal.hidden = false;
+      try {
+        const res = await apiCall('/dashboard.php');
+        if (!res.success) throw new Error(res.message || 'Erreur');
+        renderDashboard(body, res.data);
+      } catch (e) {
+        body.innerHTML = `<div class="auth-error show">${escape(e.message || 'Erreur de chargement')}</div>`;
+      }
+    }
+
+    function renderDashboard(container, d) {
+      const c = d.counts || {};
+      const car = d.car_profile;
+      const savings = d.savings;
+      const recent = d.recent_searches || [];
+      const brands = d.top_brands || [];
+      const stats = d.favorite_price_stats || [];
+
+      let savingsTile = '';
+      if (savings) {
+        savingsTile = `<div class="dash-tile">
+          <span class="dt-label">Économies estimées</span>
+          <span class="dt-value" style="color:#10b981">${(+savings.per_full_tank).toFixed(2)} €</span>
+          <span class="dt-sub">par plein de ${savings.tank_size} L (${escape(FUEL_LABELS[savings.fuel] || savings.fuel)})</span>
+        </div>`;
+      }
+
+      let carTile;
+      if (car) {
+        carTile = `<div class="dash-tile">
+          <span class="dt-label">Mon véhicule</span>
+          <span class="dt-value" style="font-size:1.1rem">${escape(car.label || 'Voiture')}</span>
+          <span class="dt-sub">${escape(FUEL_LABELS[car.fuel_type] || car.fuel_type)} · ${car.consumption} L/100 km</span>
+        </div>`;
+      } else {
+        carTile = `<div class="dash-tile" style="cursor:pointer" id="dashConfigureCar">
+          <span class="dt-label">Mon véhicule</span>
+          <span class="dt-value" style="font-size:1rem;color:var(--primary)">Configurer</span>
+          <span class="dt-sub">Pour le calcul €/100 km</span>
+        </div>`;
+      }
+
+      const tiles = `
+        <div class="dash-grid">
+          <div class="dash-tile">
+            <span class="dt-label">Favoris</span>
+            <span class="dt-value">${c.favorites || 0}</span>
+            <span class="dt-sub">station${(c.favorites || 0) > 1 ? 's' : ''} enregistrée${(c.favorites || 0) > 1 ? 's' : ''}</span>
+          </div>
+          <div class="dash-tile">
+            <span class="dt-label">Recherches</span>
+            <span class="dt-value">${c.searches || 0}</span>
+            <span class="dt-sub">total cumulé</span>
+          </div>
+          ${carTile}
+          ${savingsTile}
+        </div>
+      `;
+
+      let brandsHTML = '';
+      if (brands.length) {
+        brandsHTML = `<div class="dash-section">
+          <h3 class="dash-section-title">Vos enseignes favorites</h3>
+          <div class="dash-list">
+            ${brands.map(b => `<div class="dash-list-item"><span>${escape(b.brand)}</span><span class="dli-meta">${b.n} favori${b.n > 1 ? 's' : ''}</span></div>`).join('')}
+          </div>
+        </div>`;
+      }
+
+      let statsHTML = '';
+      if (stats.length) {
+        statsHTML = `<div class="dash-section">
+          <h3 class="dash-section-title">Prix moyens de vos favoris</h3>
+          <div class="dash-list">
+            ${stats.map(s => `<div class="dash-list-item">
+              <span>${escape(FUEL_LABELS[s.fuel_type] || s.fuel_type || '—')}</span>
+              <span class="dli-meta">moy. ${(+s.avg_price).toFixed(3)} € · min ${(+s.min_price).toFixed(3)} · max ${(+s.max_price).toFixed(3)}</span>
+            </div>`).join('')}
+          </div>
+        </div>`;
+      }
+
+      let recentHTML = '';
+      if (recent.length) {
+        recentHTML = `<div class="dash-section">
+          <h3 class="dash-section-title">Dernières recherches</h3>
+          <div class="dash-list">
+            ${recent.map(r => `<div class="dash-list-item">
+              <span>${escape(r.city_name || r.postal_code || '—')}${r.postal_code && r.city_name ? ' (' + escape(r.postal_code) + ')' : ''}</span>
+              <span class="dli-meta">${formatRelativeDate(r.last_used_at)} · ${r.use_count}×</span>
+            </div>`).join('')}
+          </div>
+        </div>`;
+      }
+
+      container.innerHTML = tiles + brandsHTML + statsHTML + recentHTML;
+      const cfg = document.getElementById('dashConfigureCar');
+      if (cfg) cfg.addEventListener('click', () => {
+        document.getElementById('dashboardModal').hidden = true;
+        openCarProfileModal();
+      });
+    }
+
+    function formatRelativeDate(s) {
+      if (!s) return '—';
+      const d = new Date(String(s).replace(' ', 'T'));
+      if (isNaN(d)) return s;
+      const diff = Date.now() - d.getTime();
+      const day = 86400000;
+      if (diff < 3600000) return 'il y a ' + Math.max(1, Math.round(diff / 60000)) + ' min';
+      if (diff < day) return 'il y a ' + Math.round(diff / 3600000) + ' h';
+      if (diff < 7 * day) return 'il y a ' + Math.round(diff / day) + ' j';
+      return d.toLocaleDateString('fr-FR');
+    }
+
+    // ─── Car profile
+    async function openCarProfileModal() {
+      if (!currentUser) { openAuthModal('login'); return; }
+      mountFeatureModals();
+      await loadCarProfile();
+      const p = currentCarProfile || {};
+      document.getElementById('carLabel').value = p.label || '';
+      document.getElementById('carFuel').value = p.fuel_type || 'gazole';
+      document.getElementById('carBrand').value = p.brand || '';
+      document.getElementById('carModel').value = p.model || '';
+      document.getElementById('carConso').value = p.consumption || '';
+      document.getElementById('carTank').value = p.tank_capacity || '';
+      document.getElementById('carProfileError').classList.remove('show');
+      document.getElementById('carDeleteBtn').style.display = currentCarProfile ? 'inline-flex' : 'none';
+      document.getElementById('carProfileModal').hidden = false;
+    }
+
+    async function saveCarProfile() {
+      const err = document.getElementById('carProfileError');
+      err.classList.remove('show');
+      const body = {
+        label: document.getElementById('carLabel').value.trim() || 'Ma voiture',
+        fuel_type: document.getElementById('carFuel').value,
+        brand: document.getElementById('carBrand').value.trim() || null,
+        model: document.getElementById('carModel').value.trim() || null,
+        consumption: parseFloat(document.getElementById('carConso').value),
+        tank_capacity: parseInt(document.getElementById('carTank').value, 10) || null,
+      };
+      if (!body.consumption || body.consumption < 2 || body.consumption > 30) {
+        err.textContent = 'La consommation doit être entre 2 et 30 L/100 km.';
+        err.classList.add('show');
+        return;
+      }
+      try {
+        const res = await apiCall('/car_profile.php', { method: 'POST', body: JSON.stringify(body) });
+        if (!res.success) throw new Error(res.message);
+        currentCarProfile = res.data.profile || body;
+        document.getElementById('carProfileModal').hidden = true;
+        showAlert('Profil voiture enregistré.', 'success');
+        if (filteredResults.length) renderList(filteredResults);
+      } catch (e) {
+        err.textContent = e.message || 'Erreur lors de l\'enregistrement.';
+        err.classList.add('show');
+      }
+    }
+
+    async function deleteCarProfile() {
+      if (!currentCarProfile || !confirm('Supprimer votre profil voiture ?')) return;
+      try {
+        await apiCall('/car_profile.php', { method: 'DELETE' });
+        currentCarProfile = null;
+        document.getElementById('carProfileModal').hidden = true;
+        showAlert('Profil voiture supprimé.', 'success');
+        if (filteredResults.length) renderList(filteredResults);
+      } catch (e) {
+        showAlert('Erreur lors de la suppression.', 'error');
+      }
+    }
+
+    // ─── Trip cost
+    function openTripCostModal() {
+      mountFeatureModals();
+      const conso = currentCarProfile?.consumption || '';
+      let avgPrice = '';
+      if (filteredResults.length) {
+        const prices = filteredResults.map(getPrice).filter(p => p !== null);
+        if (prices.length) avgPrice = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(3);
+      }
+      document.getElementById('tripConso').value = conso;
+      document.getElementById('tripPrice').value = avgPrice;
+      document.getElementById('tripDist').value = '';
+      document.getElementById('tripPassengers').value = '1';
+      document.getElementById('tripResult').classList.remove('show');
+      document.getElementById('tripCostModal').hidden = false;
+    }
+
+    function computeTripCost() {
+      const dist = parseFloat(document.getElementById('tripDist').value);
+      const conso = parseFloat(document.getElementById('tripConso').value);
+      const price = parseFloat(document.getElementById('tripPrice').value);
+      const passengers = Math.max(1, parseInt(document.getElementById('tripPassengers').value, 10) || 1);
+      if (!dist || !conso || !price) {
+        showAlert('Renseignez distance, consommation et prix.', 'warning');
+        return;
+      }
+      const fuelNeeded = (dist * conso) / 100;
+      const totalCost = fuelNeeded * price;
+      document.getElementById('tripTotal').textContent = totalCost.toFixed(2) + ' €';
+      document.getElementById('tripFuel').textContent = fuelNeeded.toFixed(2) + ' L';
+      document.getElementById('tripRT').textContent = (totalCost * 2).toFixed(2) + ' €';
+      document.getElementById('tripPP').textContent = (totalCost / passengers).toFixed(2) + ' €';
+      document.getElementById('tripResult').classList.add('show');
+    }
+
+    // ─── Favorite edit (nickname / notes)
+    let _editingFavId = null;
+    function openFavEditModal(stationId) {
+      mountFeatureModals();
+      const fav = userFavoritesData.find(f => f.station_id === stationId);
+      if (!fav) return;
+      _editingFavId = stationId;
+      document.getElementById('favEditSubtitle').textContent =
+        (fav.station_name || stationId) + (fav.station_city ? ' — ' + fav.station_city : '');
+      document.getElementById('favNickname').value = fav.nickname || '';
+      document.getElementById('favNotes').value = fav.notes || '';
+      document.getElementById('favEditModal').hidden = false;
+    }
+
+    async function saveFavEdit() {
+      if (!_editingFavId) return;
+      const nickname = document.getElementById('favNickname').value.trim();
+      const notes = document.getElementById('favNotes').value.trim();
+      try {
+        const res = await apiCall('/favorites.php', {
+          method: 'PATCH',
+          body: JSON.stringify({ station_id: _editingFavId, nickname, notes }),
+        });
+        if (!res.success) throw new Error(res.message);
+        const fav = userFavoritesData.find(f => f.station_id === _editingFavId);
+        if (fav) { fav.nickname = nickname; fav.notes = notes; }
+        document.getElementById('favEditModal').hidden = true;
+        showAlert('Favori mis à jour.', 'success');
+        if (filteredResults.length) renderList(filteredResults);
+      } catch (e) {
+        showAlert(e.message || 'Erreur de mise à jour.', 'error');
+      }
+    }
+
+    document.addEventListener('click', e => {
+      const editBtn = e.target.closest('[data-edit-fav]');
+      if (editBtn) {
+        e.preventDefault();
+        openFavEditModal(editBtn.getAttribute('data-edit-fav'));
+      }
+    });
+
+    // ─── Drag & drop reorder for favorites
+    function attachFavoritesDragAndDrop() {
+      const wrap = document.getElementById('resultsWrap');
+      if (!wrap || wrap._dragBound) return;
+      wrap._dragBound = true;
+      let dragId = null;
+
+      wrap.addEventListener('dragstart', e => {
+        const card = e.target.closest('.station-card.draggable');
+        if (!card) return;
+        dragId = card.dataset.id;
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', dragId); } catch (_) { }
+      });
+      wrap.addEventListener('dragend', () => {
+        wrap.querySelectorAll('.station-card.dragging, .station-card.drag-over')
+          .forEach(c => c.classList.remove('dragging', 'drag-over'));
+        dragId = null;
+      });
+      wrap.addEventListener('dragover', e => {
+        const card = e.target.closest('.station-card.draggable');
+        if (!card || card.dataset.id === dragId) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        wrap.querySelectorAll('.station-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+        card.classList.add('drag-over');
+      });
+      wrap.addEventListener('drop', async e => {
+        const card = e.target.closest('.station-card.draggable');
+        if (!card || !dragId || card.dataset.id === dragId) return;
+        e.preventDefault();
+        const targetId = card.dataset.id;
+        const fromIdx = allResults.findIndex(s => s.id === dragId);
+        const toIdx = allResults.findIndex(s => s.id === targetId);
+        if (fromIdx === -1 || toIdx === -1) return;
+        const [moved] = allResults.splice(fromIdx, 1);
+        allResults.splice(toIdx, 0, moved);
+        render(false);
+        const order = allResults.map(s => String(s.id));
+        try {
+          await apiCall('/favorites.php?action=reorder', {
+            method: 'POST',
+            body: JSON.stringify({ order }),
+          });
+          order.forEach((id, idx) => {
+            const f = userFavoritesData.find(x => x.station_id === id);
+            if (f) f.sort_position = idx;
+          });
+        } catch (err) {
+          showAlert('Impossible de sauvegarder l\'ordre.', 'error');
+        }
+      });
+    }
+
+    // Reset favorites search query when leaving favorites mode
+    document.addEventListener('click', e => {
+      if (!showingFavorites) return;
+      const btn = e.target.closest('#sortPriceBtn, #sortDistBtn, #sortNameBtn');
+      if (btn) favoritesSearchQuery = '';
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', mountFeatureModals);
+    } else {
+      mountFeatureModals();
+    }
+  </script>
+</body>
+
+</html>
