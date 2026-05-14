@@ -4296,8 +4296,9 @@ const isBest = p !== null && p === mn;
     </svg>
   </button>`;
 
-      // ─── Savings calculator (vs most expensive in list)
+// ─── Savings calculator (vs most expensive in list)
 let savingsPill = '';
+      console.log('[v0] savingsPill debug:', { isBest, p, mx, condition: isBest && p !== null && mx !== null && mx > p });
       if (isBest && p !== null && mx !== null && mx > p) {
         const tank = currentCarProfile?.tank_capacity || 50;
         const savePerLiter = mx - p;
