@@ -4139,16 +4139,22 @@ out tags center;`;
     // ── Main render ──
     function render(recompute = true) {
       if (recompute) populateFilterOptions(allResults);
-      filteredResults = sortRows(applyFilters());
+filteredResults = sortRows(applyFilters());
+      
+      // Calculate min/max prices once for all renderers
+      const pricePairs = filteredResults
+        .map(s => ({ s, p: getPrice(s) }))
+        .filter(x => x.p !== null && !Number.isNaN(x.p));
+      const pricesMnMx = pricePairs.map(x => x.p);
+      const globalMn = pricesMnMx.length ? Math.min(...pricesMnMx) : null;
+      const globalMx = pricesMnMx.length ? Math.max(...pricesMnMx) : null;
+      
       console.log('[v0] render: allResults=', allResults.length,
         'filtered=', filteredResults.length,
         'fuel=', currentFuel,
-        'filterBrand=', document.getElementById('filterBrand').value,
-        'filterType=', document.getElementById('filterType').value,
-        'filterService=', document.getElementById('filterService').value,
-        'radius=', document.getElementById('radiusInput').value);
+        'globalMn=', globalMn, 'globalMx=', globalMx);
       renderStats(filteredResults);
-      renderList(filteredResults);
+      renderList(filteredResults, globalMn, globalMx);
       renderMap(filteredResults);
       updateLastUpdateInfo(filteredResults);
     }
@@ -4193,7 +4199,7 @@ out tags center;`;
         `sur ${prices.length} station${prices.length > 1 ? 's' : ''}`;
     }
 
-    function renderList(rows) {
+    function renderList(rows, globalMn, globalMx) {
       const wrap = document.getElementById('resultsWrap');
 
       // ─── In favorites view: inject search bar + apply local filter
@@ -4232,10 +4238,9 @@ out tags center;`;
         bindFavSearchInput();
         return;
       }
-// Use all filteredResults for min/max calculation so savings are relative to all visible results
-      const allPrices = filteredResults.map(getPrice).filter(p => p !== null);
-      const mn = Math.min(...allPrices), mx = Math.max(...allPrices);
-      console.log('[v0] renderList: filteredResults=', filteredResults.length, 'allPrices=', allPrices, 'mn=', mn, 'mx=', mx);
+// Use the pre-calculated global min/max from render()
+      const mn = globalMn, mx = globalMx;
+      console.log('[v0] renderList: mn=', mn, 'mx=', mx);
       wrap.innerHTML = searchBarHTML + displayRows.map(s => buildStationCard(s, mn, mx)).join('');
       bindFavSearchInput();
       if (showingFavorites) attachFavoritesDragAndDrop();
