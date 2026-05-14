@@ -4242,7 +4242,7 @@ out tags center;`;
       const full = getStationFullName(s);
       const brand = full.brand || getStationBrand(s);
       const p = getPrice(s);
-      const isBest = p !== null && p === mn && mn !== mx;
+const isBest = p !== null && p === mn;
       const isWorst = p !== null && p === mx && mn !== mx;
       const priceClass = isBest ? 'best' : isWorst ? 'worst' : '';
       const cardClass = isBest ? 'best' : isWorst ? 'worst' : '';
