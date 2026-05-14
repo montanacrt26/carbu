@@ -2724,7 +2724,7 @@
       }
     }
 
-    /* ─── Dashboard, Car profile, Trip cost ─── */
+    /* ─── Car profile, Trip cost ─── */
     .dash-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -5004,13 +5004,6 @@ out tags center;`;
             Panel Admin
           </a>
           ` : ''}
-          <button class="user-menu-item" id="myDashboardBtn" role="menuitem">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--primary)">
-              <rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/>
-              <rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>
-            </svg>
-            Mon dashboard
-          </button>
           <button class="user-menu-item" id="myCarProfileBtn" role="menuitem">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:#3b82f6">
               <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
@@ -5043,10 +5036,6 @@ out tags center;`;
     `;
         document.getElementById('userPillBtn').addEventListener('click', toggleUserMenu);
         document.getElementById('logoutBtn').addEventListener('click', logout);
-        document.getElementById('myDashboardBtn').addEventListener('click', () => {
-          closeUserMenu();
-          openDashboardModal();
-        });
         document.getElementById('myCarProfileBtn').addEventListener('click', () => {
           closeUserMenu();
           openCarProfileModal();
@@ -5354,7 +5343,7 @@ out tags center;`;
     window.addEventListener('load', initMap);
 
     // ══════════════════════════════════════════════════════════════════════���═
-    // FEATURE MODALS: Dashboard, Car profile, Trip cost, Favorite edit
+    // FEATURE MODALS: Car profile, Trip cost, Favorite edit
     // ════════════════════════════════════════════════════════════════════════
     const FUEL_LABELS = {
       gazole: 'Gazole', sp95: 'SP95', sp98: 'SP98',
@@ -5362,21 +5351,8 @@ out tags center;`;
     };
 
     function mountFeatureModals() {
-      if (document.getElementById('dashboardModal')) return;
+      if (document.getElementById('carProfileModal')) return;
       const html = `
-        <div class="modal-backdrop" id="dashboardModal" hidden role="dialog" aria-modal="true" aria-labelledby="dashTitle">
-          <div class="modal" style="max-width:780px">
-            <button class="modal-close" id="dashCloseBtn" aria-label="Fermer">×</button>
-            <div class="modal-header">
-              <h2 class="modal-title" id="dashTitle">Mon dashboard</h2>
-              <div class="modal-subtitle">Aperçu de votre activité sur CarbuFrance</div>
-            </div>
-            <div class="modal-body" id="dashBody">
-              <div class="empty-state"><div>Chargement…</div></div>
-            </div>
-          </div>
-        </div>
-
         <div class="modal-backdrop" id="carProfileModal" hidden role="dialog" aria-modal="true" aria-labelledby="carTitle">
           <div class="modal" style="max-width:560px">
             <button class="modal-close" id="carCloseBtn" aria-label="Fermer">×</button>
@@ -5504,11 +5480,10 @@ out tags center;`;
       `;
       document.body.insertAdjacentHTML('beforeend', html);
 
-      ['dashboardModal', 'carProfileModal', 'tripCostModal', 'favEditModal'].forEach(id => {
+      ['carProfileModal', 'tripCostModal', 'favEditModal'].forEach(id => {
         const m = document.getElementById(id);
         m.addEventListener('click', e => { if (e.target === m) m.hidden = true; });
       });
-      document.getElementById('dashCloseBtn').onclick = () => document.getElementById('dashboardModal').hidden = true;
       document.getElementById('carCloseBtn').onclick = () => document.getElementById('carProfileModal').hidden = true;
       document.getElementById('carCancelBtn').onclick = () => document.getElementById('carProfileModal').hidden = true;
       document.getElementById('tripCloseBtn').onclick = () => document.getElementById('tripCostModal').hidden = true;
@@ -5519,116 +5494,6 @@ out tags center;`;
       document.getElementById('carDeleteBtn').onclick = deleteCarProfile;
       document.getElementById('tripCalcBtn').onclick = computeTripCost;
       document.getElementById('favEditSaveBtn').onclick = saveFavEdit;
-    }
-
-    // ─── Dashboard
-    async function openDashboardModal() {
-      if (!currentUser) { openAuthModal('login'); return; }
-      mountFeatureModals();
-      const modal = document.getElementById('dashboardModal');
-      const body = document.getElementById('dashBody');
-      body.innerHTML = '<div class="empty-state"><div>Chargement…</div></div>';
-      modal.hidden = false;
-      try {
-        const res = await apiCall('/dashboard.php');
-        if (!res.success) throw new Error(res.message || 'Erreur');
-        renderDashboard(body, res.data);
-      } catch (e) {
-        body.innerHTML = `<div class="auth-error show">${escape(e.message || 'Erreur de chargement')}</div>`;
-      }
-    }
-
-    function renderDashboard(container, d) {
-      const c = d.counts || {};
-      const car = d.car_profile;
-      const savings = d.savings;
-      const recent = d.recent_searches || [];
-      const brands = d.top_brands || [];
-      const stats = d.favorite_price_stats || [];
-
-      let savingsTile = '';
-      if (savings) {
-        savingsTile = `<div class="dash-tile">
-          <span class="dt-label">Économies estimées</span>
-          <span class="dt-value" style="color:#10b981">${(+savings.per_full_tank).toFixed(2)} €</span>
-          <span class="dt-sub">par plein de ${savings.tank_size} L (${escape(FUEL_LABELS[savings.fuel] || savings.fuel)})</span>
-        </div>`;
-      }
-
-      let carTile;
-      if (car) {
-        carTile = `<div class="dash-tile">
-          <span class="dt-label">Mon véhicule</span>
-          <span class="dt-value" style="font-size:1.1rem">${escape(car.label || 'Voiture')}</span>
-          <span class="dt-sub">${escape(FUEL_LABELS[car.fuel_type] || car.fuel_type)} · ${car.consumption} L/100 km</span>
-        </div>`;
-      } else {
-        carTile = `<div class="dash-tile" style="cursor:pointer" id="dashConfigureCar">
-          <span class="dt-label">Mon véhicule</span>
-          <span class="dt-value" style="font-size:1rem;color:var(--primary)">Configurer</span>
-          <span class="dt-sub">Pour le calcul €/100 km</span>
-        </div>`;
-      }
-
-      const tiles = `
-        <div class="dash-grid">
-          <div class="dash-tile">
-            <span class="dt-label">Favoris</span>
-            <span class="dt-value">${c.favorites || 0}</span>
-            <span class="dt-sub">station${(c.favorites || 0) > 1 ? 's' : ''} enregistrée${(c.favorites || 0) > 1 ? 's' : ''}</span>
-          </div>
-          <div class="dash-tile">
-            <span class="dt-label">Recherches</span>
-            <span class="dt-value">${c.searches || 0}</span>
-            <span class="dt-sub">total cumulé</span>
-          </div>
-          ${carTile}
-          ${savingsTile}
-        </div>
-      `;
-
-      let brandsHTML = '';
-      if (brands.length) {
-        brandsHTML = `<div class="dash-section">
-          <h3 class="dash-section-title">Vos enseignes favorites</h3>
-          <div class="dash-list">
-            ${brands.map(b => `<div class="dash-list-item"><span>${escape(b.brand)}</span><span class="dli-meta">${b.n} favori${b.n > 1 ? 's' : ''}</span></div>`).join('')}
-          </div>
-        </div>`;
-      }
-
-      let statsHTML = '';
-      if (stats.length) {
-        statsHTML = `<div class="dash-section">
-          <h3 class="dash-section-title">Prix moyens de vos favoris</h3>
-          <div class="dash-list">
-            ${stats.map(s => `<div class="dash-list-item">
-              <span>${escape(FUEL_LABELS[s.fuel_type] || s.fuel_type || '—')}</span>
-              <span class="dli-meta">moy. ${(+s.avg_price).toFixed(3)} € · min ${(+s.min_price).toFixed(3)} · max ${(+s.max_price).toFixed(3)}</span>
-            </div>`).join('')}
-          </div>
-        </div>`;
-      }
-
-      let recentHTML = '';
-      if (recent.length) {
-        recentHTML = `<div class="dash-section">
-          <h3 class="dash-section-title">Dernières recherches</h3>
-          <div class="dash-list">
-            ${recent.map(r => `<div class="dash-list-item">
-              <span>${escape(r.city_name || r.postal_code || '—')}${r.postal_code && r.city_name ? ' (' + escape(r.postal_code) + ')' : ''}</span>
-              <span class="dli-meta">${formatRelativeDate(r.last_used_at)} · ${r.use_count}×</span>
-            </div>`).join('')}
-          </div>
-        </div>`;
-      }
-
-      container.innerHTML = tiles + brandsHTML + statsHTML + recentHTML;
-      const cfg = document.getElementById('dashConfigureCar');
-      if (cfg) cfg.addEventListener('click', () => {
-        document.getElementById('dashboardModal').hidden = true;
-        openCarProfileModal();
-      });
     }
 
     function formatRelativeDate(s) {
