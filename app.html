@@ -3334,6 +3334,8 @@
     let acTimeout;
     let showingFavorites = false; // true when Favoris view is active
     let favoritesSearchQuery = ''; // search query within favorites view
+    let searchResultsBackup = []; // backup of allResults before entering favorites view
+    let searchCenterBackup = null; // backup of searchCenter before entering favorites view
 
     // ── Fuel mapping ──
     const FUEL_COLS = {
@@ -3920,10 +3922,15 @@ out tags center;`;
         const id = m === 'price' ? 'sortPriceBtn' : m === 'distance' ? 'sortDistBtn' : 'sortNameBtn';
         document.getElementById(id).classList.toggle('active', m === mode);
       });
-      // Restore the map visibility (was hidden in favorites view)
+// Restore the map visibility and original search results (was hidden in favorites view)
       if (wasFavorites) {
         const mapCard = document.getElementById('mapCard');
         if (mapCard) mapCard.style.display = '';
+        // Restore the original search results
+        if (searchResultsBackup.length) {
+          allResults = searchResultsBackup;
+          searchCenter = searchCenterBackup;
+        }
       }
       render(false);
     }
@@ -3939,6 +3946,10 @@ out tags center;`;
         return;
       }
 
+// Backup current search results before switching to favorites
+      searchResultsBackup = [...allResults];
+      searchCenterBackup = searchCenter;
+      
       showingFavorites = true;
       favoritesSearchQuery = ''; // reset search on entering favorites view
       // Toggle active state on buttons
