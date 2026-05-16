@@ -2724,13 +2724,14 @@
       }
     }
 
-    /* ─── Dashboard, Car profile, Trip cost ─── */
+    /* ─── Car profile, Trip cost ─── */
     .dash-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 0.75rem;
       margin-bottom: 1rem;
     }
+
     .dash-tile {
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -2740,23 +2741,30 @@
       flex-direction: column;
       gap: 0.25rem;
     }
+
     .dash-tile .dt-label {
       color: var(--muted);
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
+
     .dash-tile .dt-value {
       font-size: 1.5rem;
       font-weight: 700;
       color: var(--text);
       letter-spacing: -0.01em;
     }
+
     .dash-tile .dt-sub {
       color: var(--muted);
       font-size: 0.75rem;
     }
-    .dash-section { margin-top: 1.25rem; }
+
+    .dash-section {
+      margin-top: 1.25rem;
+    }
+
     .dash-section-title {
       font-size: 0.85rem;
       font-weight: 600;
@@ -2766,11 +2774,13 @@
       align-items: center;
       gap: 0.4rem;
     }
+
     .dash-list {
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
     }
+
     .dash-list-item {
       display: flex;
       justify-content: space-between;
@@ -2781,6 +2791,7 @@
       border-radius: 8px;
       font-size: 0.85rem;
     }
+
     .dash-list-item .dli-meta {
       color: var(--muted);
       font-size: 0.75rem;
@@ -2792,17 +2803,23 @@
       grid-template-columns: 1fr 1fr;
       gap: 0.75rem;
     }
+
     .form-row {
       display: flex;
       flex-direction: column;
       gap: 0.3rem;
     }
-    .form-row.full { grid-column: 1 / -1; }
+
+    .form-row.full {
+      grid-column: 1 / -1;
+    }
+
     .form-row label {
       font-size: 0.75rem;
       color: var(--muted);
       font-weight: 500;
     }
+
     .form-row input,
     .form-row select,
     .form-row textarea {
@@ -2814,6 +2831,7 @@
       font: inherit;
       width: 100%;
     }
+
     .form-row input:focus,
     .form-row select:focus,
     .form-row textarea:focus {
@@ -2821,7 +2839,12 @@
       border-color: var(--primary);
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
     }
-    .form-row textarea { resize: vertical; min-height: 70px; }
+
+    .form-row textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
     .form-hint {
       font-size: 0.7rem;
       color: var(--muted);
@@ -2836,35 +2859,43 @@
       margin-top: 1rem;
       display: none;
     }
-    .trip-result.show { display: block; }
+
+    .trip-result.show {
+      display: block;
+    }
+
     .trip-result-big {
       font-size: 2rem;
       font-weight: 700;
       color: var(--primary);
     }
+
     .trip-result-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 0.75rem;
       margin-top: 0.75rem;
     }
-    .trip-result-grid > div {
+
+    .trip-result-grid>div {
       display: flex;
       flex-direction: column;
       gap: 0.2rem;
     }
+
     .trip-result-grid .trg-label {
       font-size: 0.7rem;
       color: var(--muted);
       text-transform: uppercase;
     }
+
     .trip-result-grid .trg-value {
       font-size: 1rem;
       font-weight: 600;
       color: var(--text);
     }
 
-    /* Station card extras (savings, fuel cost) */
+    /* Station card extras (full tank cost, fuel cost per 100km) */
     .station-extras {
       display: flex;
       flex-wrap: wrap;
@@ -2873,6 +2904,7 @@
       padding-top: 0.6rem;
       border-top: 1px dashed var(--border);
     }
+
     .extra-pill {
       display: inline-flex;
       align-items: center;
@@ -2885,11 +2917,13 @@
       border: 1px solid var(--border);
       color: var(--text);
     }
-    .extra-pill.savings {
-      background: color-mix(in srgb, #10b981 12%, transparent);
-      border-color: color-mix(in srgb, #10b981 35%, transparent);
-      color: #10b981;
+
+    .extra-pill.full-tank {
+      background: color-mix(in srgb, #f59e0b 12%, transparent);
+      border-color: color-mix(in srgb, #f59e0b 35%, transparent);
+      color: #f59e0b;
     }
+
     .extra-pill.cost {
       background: color-mix(in srgb, var(--primary) 10%, transparent);
       border-color: color-mix(in srgb, var(--primary) 30%, transparent);
@@ -2909,6 +2943,7 @@
       font-size: 0.7rem;
       font-weight: 600;
     }
+
     .station-notes {
       margin-top: 0.5rem;
       padding: 0.5rem 0.65rem;
@@ -2919,6 +2954,7 @@
       color: var(--muted);
       font-style: italic;
     }
+
     .fav-edit-btn {
       background: transparent;
       border: 1px solid var(--border);
@@ -2932,14 +2968,29 @@
       gap: 0.25rem;
       transition: all 0.15s;
     }
+
     .fav-edit-btn:hover {
       color: var(--primary);
       border-color: var(--primary);
     }
-    .station-card.draggable { cursor: grab; }
-    .station-card.draggable:active { cursor: grabbing; }
-    .station-card.dragging { opacity: 0.5; transform: scale(0.98); }
-    .station-card.drag-over { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent); }
+
+    .station-card.draggable {
+      cursor: grab;
+    }
+
+    .station-card.draggable:active {
+      cursor: grabbing;
+    }
+
+    .station-card.dragging {
+      opacity: 0.5;
+      transform: scale(0.98);
+    }
+
+    .station-card.drag-over {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent);
+    }
 
     /* Favorites search bar */
     .fav-search-bar {
@@ -2952,6 +3003,7 @@
       border-radius: 10px;
       margin-bottom: 0.75rem;
     }
+
     .fav-search-bar input {
       flex: 1;
       background: transparent;
@@ -2960,7 +3012,11 @@
       font: inherit;
       outline: none;
     }
-    .fav-search-bar svg { color: var(--muted); flex-shrink: 0; }
+
+    .fav-search-bar svg {
+      color: var(--muted);
+      flex-shrink: 0;
+    }
 
     /* Auth error reuse for form errors */
     .auth-error {
@@ -2969,11 +3025,19 @@
       font-size: 0.78rem;
       padding: 0.4rem 0;
     }
-    .auth-error.show { display: block; }
+
+    .auth-error.show {
+      display: block;
+    }
 
     @media (max-width: 600px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .trip-result-grid { grid-template-columns: 1fr; }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .trip-result-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -2987,7 +3051,6 @@
       <div class="brand">
         <span class="brand-logo">C</span>
         <span>CarbuFrance</span>
-        <span class="badge-flash">Données officielles</span>
       </div>
       <div class="topbar-right">
         <!-- Auth area: filled by JS depending on session state -->
@@ -3311,6 +3374,8 @@
 
     // ── State ──
     let allResults = [];   // raw API rows
+    let savedAllResults = null;   // backup of allResults before favorites mode (null = not saved)
+    let savedSearchCenter = null; // backup of searchCenter before favorites mode
     let filteredResults = [];   // after radius + filters
     let currentSort = 'price';
     let currentFuel = 'Gazole';
@@ -3331,22 +3396,28 @@
     const ALL_FUELS = Object.keys(FUEL_COLS);
 
     // ── Brand keywords (fallback if no OSM data) ──
+    // Order matters: longer/more specific patterns first
     const BRAND_KEYWORDS = [
       'TOTAL ENERGIES', 'TOTAL ACCESS', 'TOTALENERGIES', 'TOTAL',
       'ESSO EXPRESS', 'ESSO',
       'BP', 'SHELL',
-      'AVIA', 'AGIP', 'ELAN',
-      'INTERMARCHE', 'INTERMARCHÉ',
+      'AVIA XPRESS', 'AVIA', 'AGIP', 'ELAN',
+      'INTERMARCHE SUPER', 'INTERMARCHE EXPRESS', 'INTERMARCHE CONTACT', 'INTERMARCHE', 'INTERMARCHÉ',
       'CARREFOUR MARKET', 'CARREFOUR CONTACT', 'CARREFOUR EXPRESS', 'CARREFOUR',
-      'LECLERC', 'E.LECLERC', 'E LECLERC',
-      'AUCHAN',
+      'E.LECLERC', 'E LECLERC', 'LECLERC DRIVE', 'LECLERC',
+      'AUCHAN SUPERMARCHE', 'AUCHAN',
       'SYSTEME U', 'SYSTÈME U', 'SUPER U', 'HYPER U', 'MARCHE U', 'U EXPRESS',
-      'CASINO', 'GEANT CASINO', 'GÉANT CASINO',
+      'GEANT CASINO', 'GÉANT CASINO', 'CASINO SUPERMARCHE', 'CASINO',
       'CORA', 'NETTO', 'LIDL', 'ALDI',
-      'MONOPRIX', 'SIMPLY',
-      'BRICOMAN', 'BRICOMARCHE',
-      'MIGROL', 'OIL FRANCE', 'PICOTY',
-      'COSTCO', 'CASTORAMA'
+      'MONOPRIX', 'SIMPLY MARKET', 'SIMPLY',
+      'BRICOMARCHE', 'BRICOMAN',
+      'MIGROL', 'OIL FRANCE', 'PICOTY', 'DYNEFF',
+      'COSTCO', 'CASTORAMA',
+      'ENI', 'Q8', 'GULF', 'TEXACO', 'REPSOL',
+      'VITO', 'AS24', 'DKV', 'ROUTEX',
+      'ATAC', 'COLRUYT', 'MATCH', 'COOP',
+      'SPAR', 'COCCIMARKET', 'COCCINELLE', 'PROXI',
+      'CONTINENT', 'MAMMOUTH', 'RALLYE'
     ];
 
     // id (string) -> { name: string, brand: string }
@@ -3361,19 +3432,34 @@
         }
         return { name: osm.name || osm.brand, brand: '' };
       }
-      // Fallback to brand detection in address
-      const addr = (s.adresse || '').toUpperCase();
+      // Fallback to brand detection in address, ville, and services
+      const searchText = [s.adresse || '', s.ville || ''].join(' ').toUpperCase();
       for (const brand of BRAND_KEYWORDS) {
-        if (addr.includes(brand)) {
+        if (searchText.includes(brand)) {
           const pretty = brand
             .toLowerCase()
             .replace(/(^|\s)\S/g, c => c.toUpperCase())
-            .replace('E.leclerc', 'E.Leclerc');
+            .replace('E.leclerc', 'E.Leclerc')
+            .replace('Intermarche', 'Intermarché')
+            .replace('Systeme U', 'Système U')
+            .replace('Geant Casino', 'Géant Casino');
           return { name: pretty, brand: '' };
         }
       }
-      if (s.adresse) return { name: capitalize(s.adresse), brand: '' };
-      if (s.ville) return { name: 'Station de ' + capitalize(s.ville), brand: '' };
+      // If no brand found, use the city name as primary identifier
+      // This is cleaner than showing addresses like "Zac De Belle Fontaine"
+      if (s.ville) {
+        return { name: 'Station ' + capitalize(s.ville), brand: '' };
+      }
+      if (s.adresse) {
+        // Extract meaningful part from address
+        const addr = s.adresse.toUpperCase();
+        const zacMatch = addr.match(/^(ZA[CI]?|ZI|ZONE [A-Z]+|CENTRE COMMERCIAL|CC|CCIAL)\s+(.+)/i);
+        if (zacMatch) {
+          return { name: 'Station ' + capitalize(zacMatch[2]), brand: '' };
+        }
+        return { name: 'Station ' + capitalize(s.adresse), brand: '' };
+      }
       return { name: 'Station', brand: '' };
     }
 
@@ -3448,6 +3534,8 @@ out tags center;`;
           if (!r.ok) continue;
           const data = await r.json();
           let added = 0;
+
+          // First pass: match by official ref:FR:prix-carburants tag
           for (const el of data.elements || []) {
             const t = el.tags || {};
             const ref = t['ref:FR:prix-carburants'];
@@ -3458,6 +3546,50 @@ out tags center;`;
             stationNames.set(String(ref), { name, brand });
             added++;
           }
+
+          // Second pass: geographic matching for stations without ref tag
+          // Match OSM stations to government stations by proximity (< 80m)
+          const osmStations = (data.elements || []).filter(el => {
+            const t = el.tags || {};
+            // Skip if already matched by ref
+            if (t['ref:FR:prix-carburants']) return false;
+            // Must have name or brand
+            const name = (t.name || '').trim();
+            const brand = (t.brand || t.operator || '').trim();
+            if (!name && !brand) return false;
+            // Must have coordinates
+            const lat = el.lat ?? el.center?.lat;
+            const lon = el.lon ?? el.center?.lon;
+            return typeof lat === 'number' && typeof lon === 'number';
+          });
+
+          for (const s of stations) {
+            // Skip if already has a name from ref matching
+            if (stationNames.has(String(s.id))) continue;
+            if (!s.geom || typeof s.geom.lat !== 'number') continue;
+
+            // Find closest OSM station within 80 meters
+            let closest = null;
+            let closestDist = Infinity;
+            for (const el of osmStations) {
+              const lat = el.lat ?? el.center?.lat;
+              const lon = el.lon ?? el.center?.lon;
+              const dist = distanceKm({ lat: s.geom.lat, lon: s.geom.lon }, { lat, lon });
+              if (dist !== null && dist < closestDist && dist < 0.08) { // 80m
+                closestDist = dist;
+                closest = el;
+              }
+            }
+
+            if (closest) {
+              const t = closest.tags || {};
+              const name = (t.name || '').trim();
+              const brand = (t.brand || t.operator || '').trim();
+              stationNames.set(String(s.id), { name, brand });
+              added++;
+            }
+          }
+
           return added > 0;
         } catch (e) { /* try next */ }
       }
@@ -3906,10 +4038,17 @@ out tags center;`;
         const id = m === 'price' ? 'sortPriceBtn' : m === 'distance' ? 'sortDistBtn' : 'sortNameBtn';
         document.getElementById(id).classList.toggle('active', m === mode);
       });
-      // Restore the map visibility (was hidden in favorites view)
+      // Restore the map visibility and original results (was hidden in favorites view)
       if (wasFavorites) {
         const mapCard = document.getElementById('mapCard');
         if (mapCard) mapCard.style.display = '';
+        // Restore original search results (savedAllResults is null if never saved)
+        if (savedAllResults !== null) {
+          allResults = savedAllResults;
+          searchCenter = savedSearchCenter;
+          savedAllResults = null;
+          savedSearchCenter = null;
+        }
       }
       render(false);
     }
@@ -3923,6 +4062,13 @@ out tags center;`;
       if (!userFavorites.length) {
         showAlert('Vous n\'avez pas encore de stations favorites.', 'info');
         return;
+      }
+
+      // Save current results to restore when exiting favorites mode
+      // Only save if we're not already in favorites mode
+      if (!showingFavorites) {
+        savedAllResults = [...allResults]; // can be empty array
+        savedSearchCenter = searchCenter;
       }
 
       showingFavorites = true;
@@ -4228,7 +4374,8 @@ out tags center;`;
       const full = getStationFullName(s);
       const brand = full.brand || getStationBrand(s);
       const p = getPrice(s);
-      const isBest = p !== null && p === mn && mn !== mx;
+      // Always show best price in green (even if only one station)
+      const isBest = p !== null && p === mn;
       const isWorst = p !== null && p === mx && mn !== mx;
       const priceClass = isBest ? 'best' : isWorst ? 'worst' : '';
       const cardClass = isBest ? 'best' : isWorst ? 'worst' : '';
@@ -4260,18 +4407,15 @@ out tags center;`;
     </svg>
   </button>`;
 
-      // ─── Savings calculator (vs most expensive in list)
-      let savingsPill = '';
-      if (p !== null && mn !== mx && p < mx) {
-        const tank = currentCarProfile?.tank_capacity || 50;
-        const savePerLiter = mx - p;
-        const savePerTank = savePerLiter * tank;
-        if (savePerTank >= 0.5) {
-          savingsPill = `<span class="extra-pill savings" title="Économie sur un plein de ${tank} L vs station la plus chère">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 12 9 23 4 18"/></svg>
-            −${savePerTank.toFixed(2)} €/plein
-          </span>`;
-        }
+      // ─── Full tank cost calculator (only if user has car profile with tank capacity)
+      let fullTankPill = '';
+      if (p !== null && currentCarProfile && currentCarProfile.tank_capacity > 0) {
+        const tank = currentCarProfile.tank_capacity;
+        const fullTankCost = p * tank;
+        fullTankPill = `<span class="extra-pill full-tank" title="Coût pour un plein complet de ${tank} L">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v15"/><path d="M15 22V4a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v4h-1a1 1 0 0 0-1 1v3"/><path d="M3 11h12"/></svg>
+          ${fullTankCost.toFixed(2)} € pour un plein
+        </span>`;
       }
 
       // ─── Conversion €/L → €/100 km via car profile
@@ -4284,8 +4428,8 @@ out tags center;`;
         </span>`;
       }
 
-      const extras = (savingsPill || costPill)
-        ? `<div class="station-extras">${savingsPill}${costPill}</div>`
+      const extras = (fullTankPill || costPill)
+        ? `<div class="station-extras">${fullTankPill}${costPill}</div>`
         : '';
 
       // ─── Favorite nickname + edit + notes (favorites view only)
@@ -4861,25 +5005,18 @@ out tags center;`;
             Panel Admin
           </a>
           ` : ''}
-          <button class="user-menu-item" id="myDashboardBtn" role="menuitem">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--primary)">
-              <rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/>
-              <rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>
-            </svg>
-            Mon dashboard
-          </button>
           <button class="user-menu-item" id="myCarProfileBtn" role="menuitem">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:#3b82f6">
               <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
               <circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/>
             </svg>
-            Mon profil voiture
+            Mon véhicule
           </button>
           <button class="user-menu-item" id="myFavoritesBtn" role="menuitem">
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:#f59e0b">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
-            Mes favoris (<span id="favCount">${userFavorites.length}</span>)
+            Mes favoris
           </button>
           <button class="user-menu-item" id="tripCostBtn" role="menuitem">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:#10b981">
@@ -4900,10 +5037,6 @@ out tags center;`;
     `;
         document.getElementById('userPillBtn').addEventListener('click', toggleUserMenu);
         document.getElementById('logoutBtn').addEventListener('click', logout);
-        document.getElementById('myDashboardBtn').addEventListener('click', () => {
-          closeUserMenu();
-          openDashboardModal();
-        });
         document.getElementById('myCarProfileBtn').addEventListener('click', () => {
           closeUserMenu();
           openCarProfileModal();
@@ -5210,8 +5343,8 @@ out tags center;`;
     }).catch(() => { });
     window.addEventListener('load', initMap);
 
-    // ════════════════════════════════════════════════════════════════════════
-    // FEATURE MODALS: Dashboard, Car profile, Trip cost, Favorite edit
+    // ══════════════════════════════════════════════════════════════════════���═
+    // FEATURE MODALS: Car profile, Trip cost, Favorite edit
     // ════════════════════════════════════════════════════════════════════════
     const FUEL_LABELS = {
       gazole: 'Gazole', sp95: 'SP95', sp98: 'SP98',
@@ -5219,27 +5352,14 @@ out tags center;`;
     };
 
     function mountFeatureModals() {
-      if (document.getElementById('dashboardModal')) return;
+      if (document.getElementById('carProfileModal')) return;
       const html = `
-        <div class="modal-backdrop" id="dashboardModal" hidden role="dialog" aria-modal="true" aria-labelledby="dashTitle">
-          <div class="modal" style="max-width:780px">
-            <button class="modal-close" id="dashCloseBtn" aria-label="Fermer">×</button>
-            <div class="modal-header">
-              <h2 class="modal-title" id="dashTitle">Mon dashboard</h2>
-              <div class="modal-subtitle">Aperçu de votre activité sur CarbuFrance</div>
-            </div>
-            <div class="modal-body" id="dashBody">
-              <div class="empty-state"><div>Chargement…</div></div>
-            </div>
-          </div>
-        </div>
-
         <div class="modal-backdrop" id="carProfileModal" hidden role="dialog" aria-modal="true" aria-labelledby="carTitle">
           <div class="modal" style="max-width:560px">
             <button class="modal-close" id="carCloseBtn" aria-label="Fermer">×</button>
             <div class="modal-header">
               <h2 class="modal-title" id="carTitle">Mon profil voiture</h2>
-              <div class="modal-subtitle">Vos infos servent à calculer le coût au 100 km et les économies par plein</div>
+              <div class="modal-subtitle">Vos infos servent à calculer le coût au 100 km et le prix d'un plein</div>
             </div>
             <div class="modal-body">
               <form id="carProfileForm" class="form-grid">
@@ -5271,7 +5391,7 @@ out tags center;`;
                 <div class="form-row">
                   <label for="carTank">Capacité réservoir (L)</label>
                   <input type="number" id="carTank" step="1" min="10" max="200" placeholder="50">
-                  <span class="form-hint">Sert au calcul d'économies par plein</span>
+                  <span class="form-hint">Sert au calcul du coût d'un plein complet</span>
                 </div>
                 <div class="form-row full">
                   <div id="carProfileError" class="auth-error"></div>
@@ -5361,11 +5481,10 @@ out tags center;`;
       `;
       document.body.insertAdjacentHTML('beforeend', html);
 
-      ['dashboardModal', 'carProfileModal', 'tripCostModal', 'favEditModal'].forEach(id => {
+      ['carProfileModal', 'tripCostModal', 'favEditModal'].forEach(id => {
         const m = document.getElementById(id);
         m.addEventListener('click', e => { if (e.target === m) m.hidden = true; });
       });
-      document.getElementById('dashCloseBtn').onclick = () => document.getElementById('dashboardModal').hidden = true;
       document.getElementById('carCloseBtn').onclick = () => document.getElementById('carProfileModal').hidden = true;
       document.getElementById('carCancelBtn').onclick = () => document.getElementById('carProfileModal').hidden = true;
       document.getElementById('tripCloseBtn').onclick = () => document.getElementById('tripCostModal').hidden = true;
@@ -5376,116 +5495,6 @@ out tags center;`;
       document.getElementById('carDeleteBtn').onclick = deleteCarProfile;
       document.getElementById('tripCalcBtn').onclick = computeTripCost;
       document.getElementById('favEditSaveBtn').onclick = saveFavEdit;
-    }
-
-    // ─── Dashboard
-    async function openDashboardModal() {
-      if (!currentUser) { openAuthModal('login'); return; }
-      mountFeatureModals();
-      const modal = document.getElementById('dashboardModal');
-      const body = document.getElementById('dashBody');
-      body.innerHTML = '<div class="empty-state"><div>Chargement…</div></div>';
-      modal.hidden = false;
-      try {
-        const res = await apiCall('/dashboard.php');
-        if (!res.success) throw new Error(res.message || 'Erreur');
-        renderDashboard(body, res.data);
-      } catch (e) {
-        body.innerHTML = `<div class="auth-error show">${escape(e.message || 'Erreur de chargement')}</div>`;
-      }
-    }
-
-    function renderDashboard(container, d) {
-      const c = d.counts || {};
-      const car = d.car_profile;
-      const savings = d.savings;
-      const recent = d.recent_searches || [];
-      const brands = d.top_brands || [];
-      const stats = d.favorite_price_stats || [];
-
-      let savingsTile = '';
-      if (savings) {
-        savingsTile = `<div class="dash-tile">
-          <span class="dt-label">Économies estimées</span>
-          <span class="dt-value" style="color:#10b981">${(+savings.per_full_tank).toFixed(2)} €</span>
-          <span class="dt-sub">par plein de ${savings.tank_size} L (${escape(FUEL_LABELS[savings.fuel] || savings.fuel)})</span>
-        </div>`;
-      }
-
-      let carTile;
-      if (car) {
-        carTile = `<div class="dash-tile">
-          <span class="dt-label">Mon véhicule</span>
-          <span class="dt-value" style="font-size:1.1rem">${escape(car.label || 'Voiture')}</span>
-          <span class="dt-sub">${escape(FUEL_LABELS[car.fuel_type] || car.fuel_type)} · ${car.consumption} L/100 km</span>
-        </div>`;
-      } else {
-        carTile = `<div class="dash-tile" style="cursor:pointer" id="dashConfigureCar">
-          <span class="dt-label">Mon véhicule</span>
-          <span class="dt-value" style="font-size:1rem;color:var(--primary)">Configurer</span>
-          <span class="dt-sub">Pour le calcul €/100 km</span>
-        </div>`;
-      }
-
-      const tiles = `
-        <div class="dash-grid">
-          <div class="dash-tile">
-            <span class="dt-label">Favoris</span>
-            <span class="dt-value">${c.favorites || 0}</span>
-            <span class="dt-sub">station${(c.favorites || 0) > 1 ? 's' : ''} enregistrée${(c.favorites || 0) > 1 ? 's' : ''}</span>
-          </div>
-          <div class="dash-tile">
-            <span class="dt-label">Recherches</span>
-            <span class="dt-value">${c.searches || 0}</span>
-            <span class="dt-sub">total cumulé</span>
-          </div>
-          ${carTile}
-          ${savingsTile}
-        </div>
-      `;
-
-      let brandsHTML = '';
-      if (brands.length) {
-        brandsHTML = `<div class="dash-section">
-          <h3 class="dash-section-title">Vos enseignes favorites</h3>
-          <div class="dash-list">
-            ${brands.map(b => `<div class="dash-list-item"><span>${escape(b.brand)}</span><span class="dli-meta">${b.n} favori${b.n > 1 ? 's' : ''}</span></div>`).join('')}
-          </div>
-        </div>`;
-      }
-
-      let statsHTML = '';
-      if (stats.length) {
-        statsHTML = `<div class="dash-section">
-          <h3 class="dash-section-title">Prix moyens de vos favoris</h3>
-          <div class="dash-list">
-            ${stats.map(s => `<div class="dash-list-item">
-              <span>${escape(FUEL_LABELS[s.fuel_type] || s.fuel_type || '—')}</span>
-              <span class="dli-meta">moy. ${(+s.avg_price).toFixed(3)} € · min ${(+s.min_price).toFixed(3)} · max ${(+s.max_price).toFixed(3)}</span>
-            </div>`).join('')}
-          </div>
-        </div>`;
-      }
-
-      let recentHTML = '';
-      if (recent.length) {
-        recentHTML = `<div class="dash-section">
-          <h3 class="dash-section-title">Dernières recherches</h3>
-          <div class="dash-list">
-            ${recent.map(r => `<div class="dash-list-item">
-              <span>${escape(r.city_name || r.postal_code || '—')}${r.postal_code && r.city_name ? ' (' + escape(r.postal_code) + ')' : ''}</span>
-              <span class="dli-meta">${formatRelativeDate(r.last_used_at)} · ${r.use_count}×</span>
-            </div>`).join('')}
-          </div>
-        </div>`;
-      }
-
-      container.innerHTML = tiles + brandsHTML + statsHTML + recentHTML;
-      const cfg = document.getElementById('dashConfigureCar');
-      if (cfg) cfg.addEventListener('click', () => {
-        document.getElementById('dashboardModal').hidden = true;
-        openCarProfileModal();
-      });
     }
 
     function formatRelativeDate(s) {
